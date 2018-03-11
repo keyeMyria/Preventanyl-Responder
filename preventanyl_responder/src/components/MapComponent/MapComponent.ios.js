@@ -8,7 +8,7 @@ import PopupDialog from 'react-native-popup-dialog';
 import * as firebase from 'firebase';
 import Database from '../../database/Database'
 import { getCurrentLocation, convertLocationToLatitudeLongitude } from '../../utils/location';
-import { formatDateTime } from '../../utils/timeHelper';
+import { formatDateTime } from '../../utils/localTimeHelper';
 import { genericErrorAlert } from '../../utils/genericAlerts';
 import { generateAppleMapsUrl } from '../../utils/linkingUrls';
 import { registerForPushNotificationsAsync, sendPushNotification, handleRegister, notifyAngels } from '../../pushnotifications/SendPushNotification';
