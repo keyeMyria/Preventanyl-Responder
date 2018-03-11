@@ -5,8 +5,6 @@ import { Text, View, Image, StyleSheet } from 'react-native';
 import MapComponent from '../../components/MapComponent/MapComponent'
 import ProfileComponent from '../../components/ProfileComponent/ProfileComponent'
 import LoginComponent from '../../components/LoginComponent/LoginComponent'
-import RegisterKitComponent from '../../components/RegisterKitComponent/RegisterKitComponent'
-import SupportUsComponent from '../../components/Support Us/SupportUsComponent';
 
 const TabNavigation = TabNavigator ({
   Map : {
@@ -33,38 +31,6 @@ const TabNavigation = TabNavigator ({
       )
     },
   },
-  Register : {
-    screen : RegisterKitComponent,
-    navigationOptions : {
-      tabBarLabel : 'RegisterKit',
-      tabBarIcon  : (
-        { 
-          tintColor 
-        }
-        ) => (
-        <Image 
-          source = { require ('../../../assets/address-book.imageset/address_book.png') }
-          style  = { [styles.icon, { tintColor : tintColor }]}
-        />
-      )
-    },
-  },
-  SupportUs : {
-    screen : SupportUsComponent,
-    navigationOptions : {
-      tabBarLabel : 'Support Us',
-      tabBarIcon  : (
-        { 
-          tintColor 
-        }
-        ) => (
-        <Image 
-          source = { require ('../../../assets/address-book.imageset/address_book.png') }
-          style  = { [styles.icon, { tintColor : tintColor }]}
-        />
-      )
-    },
-  }
 }, {
   tabBarPosition: 'bottom',
   animationEnabled: true,

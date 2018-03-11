@@ -9,7 +9,6 @@ import * as firebase from 'firebase';
 import Database from '../../database/Database'
 import { getCurrentLocation, convertLocationToLatitudeLongitude } from '../../utils/location';
 import { genericErrorAlert } from '../../utils/genericAlerts';
-import GenericPopupDialog from '../../utils/GenericPopupDialog';
 import { registerForPushNotificationsAsync, sendPushNotification, handleRegister, notifyAngels } from '../../pushnotifications/SendPushNotification';
 
 import Overdose from '../../objects/Overdose';
@@ -47,7 +46,6 @@ export default class MapComponent extends Component {
         this.setInitialRegionState ();
 
         this.findMe = this.findMe.bind (this);
-        this.helpMe = this.helpMe.bind (this);
         this.getInitialView = this.getInitialView.bind(this);
     }
 
@@ -250,47 +248,6 @@ export default class MapComponent extends Component {
 
     }
 
-    resetHelpTimer () {
-
-        if (this.state.notifyTimer != null) {
-            clearInterval (this.state.notifyTimer);
-        }
-
-        this.setState ({
-            notifySeconds : 5,
-            notifyMessage   : `Notifying in ${ this.state.notifySeconds } seconds`
-        })
-       
-    }
-
-    helpMe () {
-
-        this.resetHelpTimer ();
-
-        this.popupDialog.show();
-
-        let notifyTimer = setInterval (() => {
-            if (this.state.notifySeconds > 0) {
-                this.setState ({
-                    notifySeconds : this.state.notifySeconds - 1,
-                    notifyMessage : `Notifying in ${ this.state.notifySeconds } seconds`
-                })
-
-                console.log (this.state.notifyMessage);
-            } else {
-                this.popupDialog.dismiss ();
-                console.log ("TIME IS ZERO");
-                notifyAngels ();
-                clearInterval (this.state.notifyTimer);
-            }
-        }, 1000);
-
-        this.setState ({
-            notifyTimer : notifyTimer
-        })
-        
-    }
-
     findMe () {
 
         this.createRegionCurrentLocation ((region) => {
@@ -320,28 +277,6 @@ export default class MapComponent extends Component {
                     />
 
                 </TouchableOpacity>
-                {/* <PopupDialog
-                    ref = { (popupDialog) => { this.popupDialog = popupDialog; }} >
-                    <View>
-                        <Text>{ this.state.notifyTitle }</Text>
-                    </View>
-                </PopupDialog> */}
-                <GenericPopupDialog 
-                    title = { notifyTitle } 
-                    message = { this.state.notifyMessage } 
-                    ref = { (popupDialog) => { this.popupDialog = popupDialog; } } 
-                    actionButtonText = "Notify Angels"
-                    cancelFunction = { () => {
-                        console.log ("Cancelling Popup")
-                        this.resetHelpTimer ();
-                    }}
-                    actionFunction = { () => { 
-                            console.log ("Notifying Angels");
-                            notifyAngels ();
-                            this.resetHelpTimer ();
-                            this.popupDialog.dismiss (); 
-                        }
-                    } />
                 <MapView 
                     style = { styles.map }
                     initialRegion = { this.state.region }
@@ -417,12 +352,6 @@ export default class MapComponent extends Component {
                         ))
                     }
                 </MapView>
-                <TouchableOpacity
-                    style = { styles.helpMeBtn }
-                    onPress = { this.helpMe.bind (this) }
-                    underlayColor = '#fff'>
-                    <Text style = { styles.helpMeText }>Help Me</Text>
-                </TouchableOpacity>
             </View>
         );
     }
