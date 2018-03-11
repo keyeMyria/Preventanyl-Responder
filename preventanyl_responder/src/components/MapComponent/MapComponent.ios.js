@@ -8,12 +8,16 @@ import PopupDialog from 'react-native-popup-dialog';
 import * as firebase from 'firebase';
 import Database from '../../database/Database'
 import { getCurrentLocation, convertLocationToLatitudeLongitude } from '../../utils/location';
+import { formatDateTime } from '../../utils/timeHelper';
 import { genericErrorAlert } from '../../utils/genericAlerts';
+import { generateAppleMapsUrl } from '../../utils/linkingUrls';
 import { registerForPushNotificationsAsync, sendPushNotification, handleRegister, notifyAngels } from '../../pushnotifications/SendPushNotification';
+
+import MapCallout from '../../subcomponents/MapCallout/MapCallout';
 
 import Overdose from '../../objects/Overdose';
 
-const notifyTitle = "Notify Angels";
+const overdoseTitle = "Overdose";
 
 export default class MapComponent extends Component {
 
@@ -299,35 +303,11 @@ export default class MapComponent extends Component {
                                 coordinate  = { marker.latlng }
                                 title       = { marker.title }
                                 description = { marker.description } >
-                                <MapView.Callout>
-                                    <Text>{ marker.title }</Text>
-                                    <Text>{ marker.description }</Text>
-                                    <TouchableOpacity onPress = { () => {
-                                        let url = `http://maps.apple.com/?saddr=${ this.state.userLocation.latlng.latitude },${ this.state.userLocation.latlng.longitude }&daddr=${ marker.latlng.latitude },${ marker.latlng.longitude }`;
-                                        console.log (url);
-                                        Linking.canOpenURL (url).then ( (supported) => {
-                                            if (!supported)
-                                                genericErrorAlert ("You must have apple maps installed to use this")
-                                            else {
-                                                return Linking.openURL (url).then ( (data) => {
-                                                    console.log (data);
-                                                }).catch ( (error) => {
-                                                    console.log (error)
-                                                    genericErrorAlert ("You must have apple maps installed to use this")
-                                                })
-                                            }
-                                        }).catch ( (error) => {
-                                            console.log (error);
-                                            genericErrorAlert ("Unable to give directions")
-                                        })
-                                     } } style={ [ styles.bubble, styles.button ] }>
-                                        <Image
-                                            source = {
-                                                require('../../../assets/Car.imageset/car.png')
-                                            }
-                                        />
-                                    </TouchableOpacity>
-                                </MapView.Callout>
+                                <MapCallout 
+                                    title = { marker.title }
+                                    description = { marker.description }
+                                    url = { generateAppleMapsUrl ( this.state.userLocation.latlng, marker.latlng ) }
+                                />
                             </MapView.Marker>
                         ))
                     }
@@ -342,12 +322,13 @@ export default class MapComponent extends Component {
                                 image       = {
                                     require('../../../assets/key.imageset/key.png')
                                 }>
-                                <MapView.Callout>
-                                    <Text>
-                                        Reported Overdose at <Timestamp time = { marker.timestamp } component = { Text } />
-                                    </Text>
-                                    
-                                </MapView.Callout>
+
+                                <MapCallout 
+                                    title = { overdoseTitle }
+                                    description = { `Reported Overdose at ${ formatDateTime (marker.timestamp) }` }
+                                    url = { generateAppleMapsUrl ( this.state.userLocation.latlng, marker.latlng ) }
+                                />
+                                
                             </MapView.Marker>
                         ))
                     }
