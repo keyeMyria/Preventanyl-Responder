@@ -1,0 +1,19 @@
+{
+  "main": "node_modules/expo/AppEntry.js",
+  "private": true,
+  "dependencies": {
+    "expo": "^24.0.0",
+    "firebase": "^4.8.1",
+    "react": "16.0.0",
+    "react-native": "https://github.com/expo/react-native/archive/sdk-24.0.0.tar.gz",
+    "react-native-fcm": "^13.3.3",
+    "react-native-maps": "^0.19.0",
+    "react-native-maps-google": "^1.1.4",
+    "react-native-open-maps": "^0.1.1",
+    "react-native-popup-dialog": "^0.10.46",
+    "react-navigation": "^1.0.0-beta.22",
+    "react-redux": "^5.0.6",
+    "react-timestamp": "^4.3.1",
+    "redux": "^3.7.2"
+  }
+}
