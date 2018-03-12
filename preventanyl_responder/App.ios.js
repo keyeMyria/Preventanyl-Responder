@@ -11,12 +11,13 @@ import StackNavigation from './src/navigation/StackNavigation/StackNavigation';
 import StatusBarBackground from './src/subcomponents/StatusBarBackground/StatusBarBackground';
 
 export default class App extends React.Component {
+
     state = {
         loggedIn : false,
         isReady : false
     };
 
-    componentWillMount () {
+    async componentWillMount () {
         firebase.auth().onAuthStateChanged( user =>
             this.setState (
               {
