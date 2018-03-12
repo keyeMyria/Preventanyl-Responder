@@ -27,8 +27,6 @@ export default class MapComponent extends Component {
     constructor () {
         super ();
 
-        this.getInitialView ();
-
         this.state = {
             region : null,
             staticKits : [],
@@ -40,7 +38,6 @@ export default class MapComponent extends Component {
                 },
                 error : null,
             },
-            userLoaded    : false,
             initialView   : false,
             isLoading     : false,
             notifyMessage   : 'Notifying in 5 seconds',
@@ -51,20 +48,6 @@ export default class MapComponent extends Component {
         this.setInitialRegionState ();
 
         this.findMe = this.findMe.bind (this);
-        this.getInitialView = this.getInitialView.bind(this);
-    }
-
-    getInitialView () {
-
-        firebase.auth ().onAuthStateChanged ( (user) => {
-            let initialView = user ? "Home" : "Login";
-
-            this.setState ({
-                userLoaded  : true,
-                initialView : initialView
-            })
-        })
-
     }
 
     async componentDidMount () {
