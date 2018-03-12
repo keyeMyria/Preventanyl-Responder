@@ -3,15 +3,16 @@ import { AppRegistry, Text, View, Button, TouchableOpacity, Alert, AlertIOS, Sty
 
 import MapView, { AnimatedRegion, Animated } from 'react-native-maps';
 import Timestamp from 'react-timestamp';
-import PopupDialog from 'react-native-popup-dialog';
+import moment from 'moment';
 
 import * as firebase from 'firebase';
 import Database from '../../database/Database'
+import { registerForPushNotificationsAsync, sendPushNotification, handleRegister, notifyAngels } from '../../pushnotifications/SendPushNotification';
+
 import { getCurrentLocation, convertLocationToLatitudeLongitude } from '../../utils/location';
 import { formatDateTime } from '../../utils/localTimeHelper';
 import { genericErrorAlert } from '../../utils/genericAlerts';
 import { generateAppleMapsUrl } from '../../utils/linkingUrls';
-import { registerForPushNotificationsAsync, sendPushNotification, handleRegister, notifyAngels } from '../../pushnotifications/SendPushNotification';
 
 import MapCallout from '../../subcomponents/MapCallout/MapCallout';
 
@@ -169,12 +170,23 @@ export default class MapComponent extends Component {
         })
 
         Database.listenForItems (Database.overdosesRef, (items) => {
+
             if (!this.overdosesLoaded) {
             
                 let overdoses = [];
 
                 overdoses = items.map ( (overdose) => { 
                     return Overdose.generateOverdoseFromSnapshot (overdose);
+                })
+
+                let currentTimestamp = moment ()
+                console.log ('current', currentTimestamp.format ("DD-MM-YYYY"))
+                let startDate = currentTimestamp.clone().subtract (2, 'days').startOf ('day')
+                let endDate   = currentTimestamp.clone().add (2, 'days').endOf ('day')
+
+                overdoses = overdoses.filter ( (item) => {
+                    let compareDate = moment (item.date)
+                    return compareDate.isBetween (startDate, endDate);
                 })
 
                 this.setState ({
@@ -184,6 +196,7 @@ export default class MapComponent extends Component {
                 this.overdosesLoaded = true;
 
             }
+
         });
 
         // Replace later with one function
