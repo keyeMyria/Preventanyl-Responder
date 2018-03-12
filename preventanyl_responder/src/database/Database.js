@@ -16,9 +16,10 @@ const firebaseApp = firebase.initializeApp (config);
 
 export default class Database {
 
-    static staticKitsRef = firebase.database ().ref('statickits');
-    static overdosesRef  = firebase.database ().ref('overdoses');
-    static usersRef      = firebase.database ().ref ().child("user");
+    static staticKitsRef    = firebase.database ().ref ('statickits');
+    static overdosesRef     = firebase.database ().ref ('overdoses');
+    static usersRef         = firebase.database ().ref ().child ("user");
+    static userLocationsRef = firebase.database().ref ().child ("userLocations")
 
     static currentUser = undefined;
 
@@ -56,6 +57,10 @@ export default class Database {
 
     static addItem (itemsRef, item) {
         itemsRef.update (item)
+    }
+
+    static addItemWithChildPath (itemsRef, childPath, item) {
+        itemsRef.child (`${ childPath }/`).update (item)
     }
 
     static addItemWithChildPathId (itemsRef, childPath, item) {

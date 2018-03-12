@@ -7,7 +7,7 @@ import moment from 'moment';
 
 import * as firebase from 'firebase';
 import Database from '../../database/Database'
-import { registerForPushNotificationsAsync, sendPushNotification, handleRegister, notifyAngels } from '../../pushnotifications/SendPushNotification';
+import PushNotifications from '../../pushnotifications/PushNotifications';
 
 import { getCurrentLocation, convertLocationToLatitudeLongitude } from '../../utils/location';
 import { formatDateTime } from '../../utils/localTimeHelper';
@@ -48,12 +48,14 @@ export default class MapComponent extends Component {
         this.setInitialRegionState ();
 
         this.findMe = this.findMe.bind (this);
+
+        PushNotifications.setup ();
     }
 
     async componentDidMount () {
         this.mounted = true;
         this.watchId = navigator.geolocation.watchPosition (
-            (position) => {
+            async (position) => {
                 // console.log (position)
                 this.setState ({
                     userLocation : {
@@ -64,6 +66,24 @@ export default class MapComponent extends Component {
                         error     : null,
                     }
                 });
+
+                if (!Database.currentUser)
+                    Database.currentUser = firebase.auth().currentUser;
+
+                if (!PushNotifications.expoToken)
+                    await PushNotifications.awaitedSetup ();
+
+                let value = {
+                    "id"  : PushNotifications.expoToken,
+                    "loc" : {
+                        "lat" : this.state.userLocation.latlng.latitude,
+                        "lng" : this.state.userLocation.latlng.longitude
+                    }
+                }
+
+                if (Database.currentUser)
+                    Database.addItemWithChildPath (Database.userLocationsRef, `/${ Database.currentUser.uid }/`, value)
+
             },
             (error) => this.setState ( {
                 error : error.message
