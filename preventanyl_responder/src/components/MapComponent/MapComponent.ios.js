@@ -82,7 +82,7 @@ export default class MapComponent extends Component {
                 }
 
                 if (Database.currentUser)
-                    Database.addItemWithChildPath (Database.userLocationsRef, `/${ Database.currentUser.uid }/`, value)
+                    Database.addItemWithChildPath (Database.firebaseRefs.userLocationsRef, `/${ Database.currentUser.uid }/`, value)
 
             },
             (error) => this.setState ( {
@@ -96,7 +96,7 @@ export default class MapComponent extends Component {
             }
         );
 
-        Database.listenForItems (Database.staticKitsRef, (kits) => {
+        Database.listenForItems (Database.firebaseRefs.staticKitsRef, (kits) => {
             let staticKits = [];
             for (let kit of kits) {
                 staticKits.push ({
@@ -116,7 +116,7 @@ export default class MapComponent extends Component {
             });
         });
 
-        Database.genericListenForItem (Database.overdosesRef, Database.firebaseEventTypes.Added, (item) => {
+        Database.genericListenForItem (Database.firebaseRefs.overdosesRef, Database.firebaseEventTypes.Added, (item) => {
             if (this.overdosesLoaded) {
 
                 overdoses = this.state.overdoses;
@@ -137,7 +137,7 @@ export default class MapComponent extends Component {
             }
         })
 
-        Database.genericListenForItem (Database.overdosesRef, Database.firebaseEventTypes.Removed, (item) => {
+        Database.genericListenForItem (Database.firebaseRefs.overdosesRef, Database.firebaseEventTypes.Removed, (item) => {
             if (this.overdosesLoaded) {
 
                 overdoses = this.state.overdoses.filter( (overdose) => {
@@ -151,7 +151,7 @@ export default class MapComponent extends Component {
             }
         })
 
-        Database.genericListenForItem (Database.overdosesRef, Database.firebaseEventTypes.Changed, (item) => {
+        Database.genericListenForItem (Database.firebaseRefs.overdosesRef, Database.firebaseEventTypes.Changed, (item) => {
             if (this.overdosesLoaded) {
                 
                 overdoses = this.state.overdoses;
@@ -172,7 +172,7 @@ export default class MapComponent extends Component {
             }
         })
 
-        Database.listenForItems (Database.overdosesRef, (items) => {
+        Database.listenForItems (Database.firebaseRefs.overdosesRef, (items) => {
 
             if (!this.overdosesLoaded) {
             
