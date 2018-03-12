@@ -180,7 +180,6 @@ export default class MapComponent extends Component {
                 })
 
                 let currentTimestamp = moment ()
-                console.log ('current', currentTimestamp.format ("DD-MM-YYYY"))
                 let startDate = currentTimestamp.clone().subtract (2, 'days').startOf ('day')
                 let endDate   = currentTimestamp.clone().add (2, 'days').endOf ('day')
 
