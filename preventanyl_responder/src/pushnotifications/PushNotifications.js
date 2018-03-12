@@ -166,7 +166,7 @@ export default class PushNotifications {
             overdose = Overdose.generateOverdoseFromLocation (location)
             console.log (overdose)
             url = `https://preventanyl.com/regionfinder.php?id=${ overdose.id }&lat=${ overdose.latlng.latitude }&long=${ overdose.latlng.longitude }`
-            Database.addItemWithChildId (Database.overdosesRef, overdose.generateOverdoseForStorage ())
+            Database.addItemWithChildId (Database.firebaseRefs.overdosesRef, overdose.generateOverdoseForStorage ())
             console.log (url);
     
             // POST the token to your backend server from where you can retrieve it to send push notifications.

@@ -16,10 +16,12 @@ const firebaseApp = firebase.initializeApp (config);
 
 export default class Database {
 
-    static staticKitsRef    = firebase.database ().ref ('statickits');
-    static overdosesRef     = firebase.database ().ref ('overdoses');
-    static usersRef         = firebase.database ().ref ().child ("user");
-    static userLocationsRef = firebase.database().ref ().child ("userLocations")
+    static firebaseRefs = Object.freeze ({
+        "staticKitsRef"    : firebase.database ().ref ('statickits'),
+        "overdosesRef"     : firebase.database ().ref ('overdoses'),
+        "usersRef"         : firebase.database ().ref ().child ("user"),
+        "userLocationsRef" : firebase.database().ref ().child ("userLocations")
+    })
 
     static currentUser = undefined;
 
