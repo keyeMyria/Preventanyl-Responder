@@ -3,17 +3,22 @@ import { AppRegistry, Text, View, Button, TouchableOpacity, Alert, AlertIOS, Sty
 
 import MapView, { AnimatedRegion, Animated } from 'react-native-maps';
 import Timestamp from 'react-timestamp';
-import PopupDialog from 'react-native-popup-dialog';
+import moment from 'moment';
 
 import * as firebase from 'firebase';
 import Database from '../../database/Database'
+import PushNotifications from '../../pushnotifications/PushNotifications';
+
 import { getCurrentLocation, convertLocationToLatitudeLongitude } from '../../utils/location';
+import { formatDateTime } from '../../utils/localTimeHelper';
 import { genericErrorAlert } from '../../utils/genericAlerts';
-import { registerForPushNotificationsAsync, sendPushNotification, handleRegister, notifyAngels } from '../../pushnotifications/SendPushNotification';
+import { generateAppleMapsUrl } from '../../utils/linkingUrls';
+
+import MapCallout from '../../subcomponents/MapCallout/MapCallout';
 
 import Overdose from '../../objects/Overdose';
 
-const notifyTitle = "Notify Angels";
+const overdoseTitle = "Overdose";
 
 export default class MapComponent extends Component {
 
@@ -21,8 +26,6 @@ export default class MapComponent extends Component {
 
     constructor () {
         super ();
-
-        this.getInitialView ();
 
         this.state = {
             region : null,
@@ -35,7 +38,6 @@ export default class MapComponent extends Component {
                 },
                 error : null,
             },
-            userLoaded    : false,
             initialView   : false,
             isLoading     : false,
             notifyMessage   : 'Notifying in 5 seconds',
@@ -46,26 +48,14 @@ export default class MapComponent extends Component {
         this.setInitialRegionState ();
 
         this.findMe = this.findMe.bind (this);
-        this.getInitialView = this.getInitialView.bind(this);
-    }
 
-    getInitialView () {
-
-        firebase.auth ().onAuthStateChanged ( (user) => {
-            let initialView = user ? "Home" : "Login";
-
-            this.setState ({
-                userLoaded  : true,
-                initialView : initialView
-            })
-        })
-
+        PushNotifications.setup ();
     }
 
     async componentDidMount () {
         this.mounted = true;
         this.watchId = navigator.geolocation.watchPosition (
-            (position) => {
+            async (position) => {
                 // console.log (position)
                 this.setState ({
                     userLocation : {
@@ -76,6 +66,24 @@ export default class MapComponent extends Component {
                         error     : null,
                     }
                 });
+
+                if (!Database.currentUser)
+                    Database.currentUser = firebase.auth().currentUser;
+
+                if (!PushNotifications.expoToken)
+                    await PushNotifications.awaitedSetup ();
+
+                let value = {
+                    "id"  : PushNotifications.expoToken,
+                    "loc" : {
+                        "lat" : this.state.userLocation.latlng.latitude,
+                        "lng" : this.state.userLocation.latlng.longitude
+                    }
+                }
+
+                if (Database.currentUser)
+                    Database.addItemWithChildPath (Database.firebaseRefs.userLocationsRef, `/${ Database.currentUser.uid }/`, value)
+
             },
             (error) => this.setState ( {
                 error : error.message
@@ -88,7 +96,7 @@ export default class MapComponent extends Component {
             }
         );
 
-        Database.listenForItems (Database.staticKitsRef, (kits) => {
+        Database.listenForItems (Database.firebaseRefs.staticKitsRef, (kits) => {
             let staticKits = [];
             for (let kit of kits) {
                 staticKits.push ({
@@ -108,7 +116,7 @@ export default class MapComponent extends Component {
             });
         });
 
-        Database.genericListenForItem (Database.overdosesRef, Database.firebaseEventTypes.Added, (item) => {
+        Database.genericListenForItem (Database.firebaseRefs.overdosesRef, Database.firebaseEventTypes.Added, (item) => {
             if (this.overdosesLoaded) {
 
                 overdoses = this.state.overdoses;
@@ -129,7 +137,7 @@ export default class MapComponent extends Component {
             }
         })
 
-        Database.genericListenForItem (Database.overdosesRef, Database.firebaseEventTypes.Removed, (item) => {
+        Database.genericListenForItem (Database.firebaseRefs.overdosesRef, Database.firebaseEventTypes.Removed, (item) => {
             if (this.overdosesLoaded) {
 
                 overdoses = this.state.overdoses.filter( (overdose) => {
@@ -143,7 +151,7 @@ export default class MapComponent extends Component {
             }
         })
 
-        Database.genericListenForItem (Database.overdosesRef, Database.firebaseEventTypes.Changed, (item) => {
+        Database.genericListenForItem (Database.firebaseRefs.overdosesRef, Database.firebaseEventTypes.Changed, (item) => {
             if (this.overdosesLoaded) {
                 
                 overdoses = this.state.overdoses;
@@ -164,13 +172,23 @@ export default class MapComponent extends Component {
             }
         })
 
-        Database.listenForItems (Database.overdosesRef, (items) => {
+        Database.listenForItems (Database.firebaseRefs.overdosesRef, (items) => {
+
             if (!this.overdosesLoaded) {
             
                 let overdoses = [];
 
                 overdoses = items.map ( (overdose) => { 
                     return Overdose.generateOverdoseFromSnapshot (overdose);
+                })
+
+                let currentTimestamp = moment ()
+                let startDate = currentTimestamp.clone().subtract (2, 'days').startOf ('day')
+                let endDate   = currentTimestamp.clone().add (2, 'days').endOf ('day')
+
+                overdoses = overdoses.filter ( (item) => {
+                    let compareDate = moment (item.date)
+                    return compareDate.isBetween (startDate, endDate);
                 })
 
                 this.setState ({
@@ -180,6 +198,7 @@ export default class MapComponent extends Component {
                 this.overdosesLoaded = true;
 
             }
+
         });
 
         // Replace later with one function
@@ -299,35 +318,11 @@ export default class MapComponent extends Component {
                                 coordinate  = { marker.latlng }
                                 title       = { marker.title }
                                 description = { marker.description } >
-                                <MapView.Callout>
-                                    <Text>{ marker.title }</Text>
-                                    <Text>{ marker.description }</Text>
-                                    <TouchableOpacity onPress = { () => {
-                                        let url = `http://maps.apple.com/?saddr=${ this.state.userLocation.latlng.latitude },${ this.state.userLocation.latlng.longitude }&daddr=${ marker.latlng.latitude },${ marker.latlng.longitude }`;
-                                        console.log (url);
-                                        Linking.canOpenURL (url).then ( (supported) => {
-                                            if (!supported)
-                                                genericErrorAlert ("You must have apple maps installed to use this")
-                                            else {
-                                                return Linking.openURL (url).then ( (data) => {
-                                                    console.log (data);
-                                                }).catch ( (error) => {
-                                                    console.log (error)
-                                                    genericErrorAlert ("You must have apple maps installed to use this")
-                                                })
-                                            }
-                                        }).catch ( (error) => {
-                                            console.log (error);
-                                            genericErrorAlert ("Unable to give directions")
-                                        })
-                                     } } style={ [ styles.bubble, styles.button ] }>
-                                        <Image
-                                            source = {
-                                                require('../../../assets/Car.imageset/car.png')
-                                            }
-                                        />
-                                    </TouchableOpacity>
-                                </MapView.Callout>
+                                <MapCallout 
+                                    title = { marker.title }
+                                    description = { marker.description }
+                                    url = { generateAppleMapsUrl ( this.state.userLocation.latlng, marker.latlng ) }
+                                />
                             </MapView.Marker>
                         ))
                     }
@@ -342,12 +337,13 @@ export default class MapComponent extends Component {
                                 image       = {
                                     require('../../../assets/key.imageset/key.png')
                                 }>
-                                <MapView.Callout>
-                                    <Text>
-                                        Reported Overdose at <Timestamp time = { marker.timestamp } component = { Text } />
-                                    </Text>
-                                    
-                                </MapView.Callout>
+
+                                <MapCallout 
+                                    title = { overdoseTitle }
+                                    description = { `Reported Overdose at ${ formatDateTime (marker.timestamp) }` }
+                                    url = { generateAppleMapsUrl ( this.state.userLocation.latlng, marker.latlng ) }
+                                />
+                                
                             </MapView.Marker>
                         ))
                     }

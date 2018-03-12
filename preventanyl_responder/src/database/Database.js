@@ -1,5 +1,8 @@
 import * as firebase from "firebase";
 
+import spinnerFunction from '../utils/spinnerFunction';
+import { genericVerificationAlert } from '../utils/genericAlerts';
+
 const config = {
     apiKey: "AIzaSyBa2ZiHRF2TrEaLBw3JrctIgT-UOU0tN84",
     authDomain: "preventanyl.firebaseapp.com",
@@ -13,8 +16,14 @@ const firebaseApp = firebase.initializeApp (config);
 
 export default class Database {
 
-    static staticKitsRef = firebase.database ().ref('statickits');
-    static overdosesRef  = firebase.database ().ref('overdoses');
+    static firebaseRefs = Object.freeze ({
+        "staticKitsRef"    : firebase.database ().ref ('statickits'),
+        "overdosesRef"     : firebase.database ().ref ('overdoses'),
+        "usersRef"         : firebase.database ().ref ().child ("user"),
+        "userLocationsRef" : firebase.database().ref ().child ("userLocations")
+    })
+
+    static currentUser = undefined;
 
     static firebaseEventTypes = Object.freeze ({
         "Added"   : "child_added",
@@ -50,6 +59,10 @@ export default class Database {
 
     static addItem (itemsRef, item) {
         itemsRef.update (item)
+    }
+
+    static addItemWithChildPath (itemsRef, childPath, item) {
+        itemsRef.child (`${ childPath }/`).update (item)
     }
 
     static addItemWithChildPathId (itemsRef, childPath, item) {
@@ -89,42 +102,95 @@ export default class Database {
         });
 
     }
+
+    static checkUserVerfied () {
+        return Database.currentUser.emailVerified;
+    }
+
+    static async sendVerificationEmail () {
+        if (!Database.currentUser.emailVerified) {
+            console.log (Database.currentUser.emailVerified);
+            Database.currentUser.sendEmailVerification().then (function () {
+                console.log ("email sent");
+            }).catch (function (error) {
+                console.log (error);
+            });
+        }
+    }
     
-    async signup(email, pass) {
-        try {
-            await firebase.auth().
-                createUserWithEmailAndPassword(email, pass);
+    static async notifySignupVerficiation () {
+        if (!Database.checkUserVerfied ())
+            genericVerificationAlert ('Verification Email Sent', 'Please check email');
+    }
 
+    static async notifyUserVerification () {
+        if (!Database.checkUserVerfied ())
+            genericVerificationAlert ('User not verified', 'Please verify email');
+    }
+
+    static async signup(email, pass, successCallback, failureCallback) {
+        await firebase.auth().createUserWithEmailAndPassword(email, pass).then(function(user) {
             console.log("Account created");
-
+            Database.currentUser = firebase.auth().currentUser;
+            Database.sendVerificationEmail ();
+            spinnerFunction ( () => {
+                Database.notifySignupVerficiation ();
+            });
+            // use below if wish to store additional information about user
+            /* var data = {
+                email: $scope.email,
+                password: $scope.password,
+                firstName: $scope.firstName,
+                lastName: $scope.lastName,
+                id:user.uid
+            }
+            ref.child(user.uid).set(data).then(function(ref) {//use 'child' and 'set' combination to save data in your own generated key
+                console.log("Saved");
+                $location.path('/profile');
+            }, function(error) {
+                console.log(error); 
+            }); */
             // Navigate to home page, user is auto logged in
-        } catch (error) {
+            successCallback(user);
+        }).catch(function(error) {
             console.log(error.toString());
-        }
+            const { errorCode, errorMessage } = error;
+            console.log (errorCode);
+            console.log (errorMessage);
+            failureCallback();
+        });
     }
 
-    static async login(email, pass) {
-        try {
-            await firebase.auth().
-                signInWithEmailAndPassword(email, pass);
+    static async login(email, pass, successCallback, failureCallback) {
+        await firebase.auth().signInWithEmailAndPassword(email, pass).then (function (user) {
+                Database.currentUser = user;
+                spinnerFunction ( () => {
+                    Database.notifyUserVerification ();
+                });
 
-            console.log("Logged in");
-
-            // Navigate to home page, after login
-        } catch (error) {
-            console.log(error.toString());
-        }
+                /* if (!user.emailVerified) {
+                    Database.sendVerificationEmail ();
+                } */
+                // Navigate to home page, after login
+                successCallback ();
+            }).catch(function (error) {
+                console.log(error.toString());
+                const { errorCode, errorMessage } = error;
+                console.log (errorCode);
+                console.log (errorMessage);
+                failureCallback ();
+            });
     }
 
-    static async logout() {
+    static async logout(successCallback, failureCallback) {
         try {
             await firebase.auth().signOut();
-
+            successCallback ();
             // Navigate to login component
         } catch (error) {
             console.log(error.toString());
+            failureCallback ();
         }
     }
-
 
 }

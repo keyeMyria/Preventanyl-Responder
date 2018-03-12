@@ -8,6 +8,7 @@ import LoginForm from './LoginForm';
 export default class LoginComponent extends Component {
 
   render () {
+    const { navigate } = this.props.navigation;
     return (
       <KeyboardAvoidingView behavior = 'padding' style = { styles.container }>
 
