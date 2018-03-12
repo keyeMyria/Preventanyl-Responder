@@ -4,7 +4,6 @@ import { Text, View, Image, StyleSheet } from 'react-native';
 
 import MapComponent from '../../components/MapComponent/MapComponent'
 import ProfileComponent from '../../components/ProfileComponent/ProfileComponent'
-import LoginComponent from '../../components/LoginComponent/LoginComponent'
 
 const TabNavigation = TabNavigator ({
   Map : {
@@ -20,7 +19,7 @@ const TabNavigation = TabNavigator ({
     },
   },
   Profile : {
-    screen : LoginComponent,
+    screen : ProfileComponent,
     navigationOptions : {
       tabBarLabel : 'Profile',
       tabBarIcon  : ({ tintColor }) => (
