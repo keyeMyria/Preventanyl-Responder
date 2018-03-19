@@ -3,6 +3,8 @@ import { AppRegistry, Image, Linking, Platform, StyleSheet, Text, TouchableOpaci
 
 import MapView from 'react-native-maps';
 
+import { wordWrap } from '../../utils/strings';
+
 const DIALOG_HEIGHT = 0.3;
 const DIALOG_WIDTH  = 0.75;
 const DIALOG_LEFT_BUTTON_TEXT = "CANCEL";
@@ -20,7 +22,7 @@ export default class MapCallout extends Component {
             return (
                 <MapView.Callout>
                     <Text>{ this.props.title }</Text>
-                    <Text>{ this.props.description }</Text>
+                    <Text>{ wordWrap (this.props.description, 40) }</Text>
                     <TouchableOpacity onPress = { () => {
                         let url = this.props.url;
                         console.log (url);
