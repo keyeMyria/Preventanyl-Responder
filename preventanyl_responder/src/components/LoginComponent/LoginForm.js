@@ -13,9 +13,9 @@ export default class LoginForm extends Component {
     constructor () {
         super();
         this.state = {
-            username : '',
-            password : '',
-            loading  : false
+            username   : '',
+            password   : '',
+            isLoading  : false
         };
     }
    
@@ -30,10 +30,8 @@ export default class LoginForm extends Component {
     _login = async () => {
         try {
             this.setState ({
-                loading : true
+                isLoading : true
             });
-
-            console.log (this.state.loading);
 
             const { username, password } = this.state;
             console.log (username);
@@ -80,12 +78,12 @@ export default class LoginForm extends Component {
             // throw error;
         } finally {
             console.log (this.mounted);
-            console.log (this.state.loading);
+            console.log (this.state.isLoading);
             if (this.mounted)
                 this.setState ({
-                    loading : false
+                    isLoading : false
                 })
-            console.log (this.state.loading);
+            console.log (this.state.isLoading);
         }
     }
 
@@ -94,7 +92,7 @@ export default class LoginForm extends Component {
             <View style = { styles.container }>
 
                 <Spinner
-                    visible = { this.state.loading }
+                    visible = { this.state.isLoading }
                     textContent = { "Loading..." }
                     textStyle = {
                         { color : '#FFF' }
