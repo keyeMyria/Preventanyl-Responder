@@ -7,17 +7,15 @@ import moment from 'moment';
 import Spinner from 'react-native-loading-spinner-overlay';
 
 import * as firebase from 'firebase';
+
 import Database from '../../database/Database'
 import PushNotifications from '../../pushnotifications/PushNotifications';
 import PreventanylNotifications from '../../pushnotifications/PreventanylNotifications';
 
-import { getCurrentLocation, convertLocationToLatitudeLongitude } from '../../utils/location';
+import { getCurrentLocation, convertLocationToLatitudeLongitude, getCurrentLocationAsync } from '../../utils/location';
 import { formatDateTime } from '../../utils/localTimeHelper';
 import { genericErrorAlert } from '../../utils/genericAlerts';
-import { asyncTimeoutFunction } from '../../utils/timedFunctions';
 import { generateAppleMapsUrl } from '../../utils/linkingUrls';
-
-import spinnerFunction from '../../utils/spinnerFunction';
 
 import MapCallout from '../../subcomponents/MapCallout/MapCallout';
 
@@ -44,11 +42,10 @@ export default class MapComponent extends Component {
                 },
                 error : null,
             },
-            initialView   : false,
-            isLoading     : false,
+            isLoading       : false,
             notifyMessage   : 'Notifying in 5 seconds',
-            notifySeconds : 5,
-            notifyTimer   : null
+            notifySeconds   : 5,
+            notifyTimer     : null,
         }
 
         this.setInitialRegionState ();
@@ -56,37 +53,25 @@ export default class MapComponent extends Component {
         this.findMe = this.findMe.bind (this);
 
         PushNotifications.setup ();
-    }
 
-    // PRECONDITION : isLoading must be true before function call
-    simpleLoadingFunction = async (func) => {
-        try {
-            ++MapComponent.spinnerFunctionsLoading;
+        getCurrentLocationAsync ( (location) => {
+            this.setState ({
+                userLocation    : convertLocationToLatitudeLongitude (location),
+            })
 
-            // Code commented below will not start the spinner, therefore precondition
-            /*
-                this.setState ({
-                    isLoading : true
-                });
-            */
-
-            await func ();
+            MapComponent.locationEnabled = true;
             
-        } catch (error) {
-            console.warn (error);
-            genericErrorDescriptionAlert (error);
-        } finally {
-            --MapComponent.spinnerFunctionsLoading;
+        }, (errorMessage) => {
 
-            if (MapComponent.spinnerFunctionsLoading === 0 && this.mounted)
-                this.setState ({
-                    isLoading : false
-                })
-        }
+            MapComponent.locationEnabled = false;
+
+            // genericErrorAlert (errorMessage);
+        })
     }
 
     async componentDidMount () {
         this.mounted = true;
+
         this.setState ({
             isLoading : true
         });
@@ -138,7 +123,7 @@ export default class MapComponent extends Component {
             await this.simpleLoadingFunction ( async () => {
                 let staticKits = [];
 
-                for (let kit of kits) {
+                for (let kit of kits)
                     staticKits.push ({
                         title : kit.displayName,
                         description : kit.comments,
@@ -149,7 +134,6 @@ export default class MapComponent extends Component {
                         id : kit.id,
                         key : kit.id
                     })
-                }
                 
                 this.setState ({
                     staticKits : staticKits
@@ -259,6 +243,33 @@ export default class MapComponent extends Component {
         this.mounted = false;
     }
 
+    // PRECONDITION : isLoading must be true before function call
+    simpleLoadingFunction = async (func) => {
+        try {
+            ++MapComponent.spinnerFunctionsLoading;
+
+            // Code commented below will not start the spinner, therefore precondition
+            /*
+                this.setState ({
+                    isLoading : true
+                });
+            */
+
+            await func ();
+            
+        } catch (error) {
+            console.warn (error);
+            genericErrorDescriptionAlert (error);
+        } finally {
+            --MapComponent.spinnerFunctionsLoading;
+
+            if (MapComponent.spinnerFunctionsLoading === 0 && this.mounted)
+                this.setState ({
+                    isLoading : false
+                })
+        }
+    }
+
     genericCreateRegion (location) {
         return {
             latitude       : location.latitude,
@@ -338,18 +349,18 @@ export default class MapComponent extends Component {
                     textStyle = {
                         { color : '#FFF' }
                     }
-                    cancelable = { false }
-                />
+                    cancelable = { false } />
 
                 <TouchableOpacity
                     styles = { styles.findMeBtn }
                     onPress = { this.findMe } 
                     underlayColor = '#fff'>
+
                     <Image 
                         source = {
                             require('../../../assets/location.imageset/define_location.png')
-                        }
-                    />
+                        } />
+
                 </TouchableOpacity>
 
                 <MapView 
@@ -397,7 +408,7 @@ export default class MapComponent extends Component {
                                 <MapCallout 
                                     title = { overdoseTitle }
                                     description = { `Reported Overdose at ${ formatDateTime (marker.timestamp) }` }
-                                    url = { generateAppleMapsUrl ( this.state.userLocation.latlng, marker.latlng ) }
+                                    url = { this.state.userLocation ? generateAppleMapsUrl ( this.state.userLocation.latlng, marker.latlng ) : '' }
                                 />
                                 
                             </MapView.Marker>
