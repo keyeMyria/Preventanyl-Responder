@@ -1,34 +1,10 @@
-import { Constants, Location, Permissions } from 'expo';
+import { Constants, Location } from 'expo';
+
+import PermissionsHandler from './PermissionsHandler';
 
 export default class LocationHelper {
     static locationEnabled = false;
 }
-
-const LOCATION_DENIED = 'You cannot access the entire features of the app without location';
-
-export const askForLocationPermission = async (successCallback, failureCallback) => {
-    let { status } = await Permissions.askAsync (Permissions.LOCATION);
-
-    console.log (status);
-    
-    if (status !== 'granted') {
-        // failureCallback ('Permission to access location was denied');
-        LocationHelper.locationEnabled = false;
-        failureCallback (LOCATION_DENIED)
-    } else {
-        LocationHelper.locationEnabled = true;
-        successCallback ();
-    }
-}
-
-export const getCurrentLocationAsync = async (successCallback, failureCallback) => {
-    askForLocationPermission ( async () => {
-
-        let location = await Location.getCurrentPositionAsync ( { } );
-        successCallback (location)
-
-    }, failureCallback)
-};
 
 export const getCurrentLocation = (successCallback, failureCallback) => {
 
@@ -49,6 +25,17 @@ export const getCurrentLocation = (successCallback, failureCallback) => {
             failureCallback (error);
         });
     }
+};
+
+export const getCurrentLocationAsync = async (successCallback, failureCallback) => {
+
+    PermissionsHandler.requestLocationPermission ( async () => {
+
+        let location = await Location.getCurrentPositionAsync ( { } );
+        successCallback (location)
+
+    }, failureCallback)
+
 };
 
 export const convertLocationToLatitudeLongitude = (location) => {
