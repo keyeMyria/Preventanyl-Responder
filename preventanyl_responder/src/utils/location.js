@@ -1,11 +1,41 @@
+import { Constants, Location } from 'expo';
+
+import PermissionsHandler from './PermissionsHandler';
+
+export default class LocationHelper {
+    static locationEnabled = false;
+}
+
 export const getCurrentLocation = (successCallback, failureCallback) => {
-    return new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(position => resolve(position), e => reject(e));
-    }).then (result => {
-        successCallback (result);
-    }).catch (error => {
-        failureCallback (error);
-    });
+
+    if (LocationHelper.locationEnabled)
+        return new Promise ((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition (position => resolve(position), e => reject(e));
+        }).then (result => {
+            successCallback (result);
+        }).catch (error => {
+            failureCallback (error);
+        });
+    else {
+        return new Promise ((resolve, reject) => {
+            throw new Error (LOCATION_DENIED)
+        }).then (result => {
+            successCallback (result);
+        }).catch (error => {
+            failureCallback (error);
+        });
+    }
+};
+
+export const getCurrentLocationAsync = async (successCallback, failureCallback) => {
+
+    PermissionsHandler.requestLocationPermission ( async () => {
+
+        let location = await Location.getCurrentPositionAsync ( { } );
+        successCallback (location)
+
+    }, failureCallback)
+
 };
 
 export const convertLocationToLatitudeLongitude = (location) => {

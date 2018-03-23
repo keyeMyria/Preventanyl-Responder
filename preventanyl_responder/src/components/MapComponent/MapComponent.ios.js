@@ -4,12 +4,16 @@ import { AppRegistry, Text, View, Button, TouchableOpacity, Alert, AlertIOS, Sty
 import MapView, { AnimatedRegion, Animated } from 'react-native-maps';
 import Timestamp from 'react-timestamp';
 import moment from 'moment';
+import Spinner from 'react-native-loading-spinner-overlay';
 
 import * as firebase from 'firebase';
+
 import Database from '../../database/Database'
 import PushNotifications from '../../pushnotifications/PushNotifications';
+import PreventanylNotifications from '../../pushnotifications/PreventanylNotifications';
+import PermissionsHandler from '../../utils/PermissionsHandler';
 
-import { getCurrentLocation, convertLocationToLatitudeLongitude } from '../../utils/location';
+import { getCurrentLocation, getCurrentLocationAsync, convertLocationToLatitudeLongitude } from '../../utils/location';
 import { formatDateTime } from '../../utils/localTimeHelper';
 import { genericErrorAlert } from '../../utils/genericAlerts';
 import { generateAppleMapsUrl } from '../../utils/linkingUrls';
@@ -22,7 +26,8 @@ const overdoseTitle = "Overdose";
 
 export default class MapComponent extends Component {
 
-    overdosesLoaded = false;
+    overdosesLoaded                = false;
+    static spinnerFunctionsLoading = 0;
 
     constructor () {
         super ();
@@ -38,11 +43,10 @@ export default class MapComponent extends Component {
                 },
                 error : null,
             },
-            initialView   : false,
-            isLoading     : false,
+            isLoading       : false,
             notifyMessage   : 'Notifying in 5 seconds',
-            notifySeconds : 5,
-            notifyTimer   : null
+            notifySeconds   : 5,
+            notifyTimer     : null,
         }
 
         this.setInitialRegionState ();
@@ -50,10 +54,16 @@ export default class MapComponent extends Component {
         this.findMe = this.findMe.bind (this);
 
         PushNotifications.setup ();
+        
     }
 
     async componentDidMount () {
         this.mounted = true;
+
+        this.setState ({
+            isLoading : true
+        });
+
         this.watchId = navigator.geolocation.watchPosition (
             async (position) => {
                 // console.log (position)
@@ -96,24 +106,29 @@ export default class MapComponent extends Component {
             }
         );
 
-        Database.listenForItems (Database.firebaseRefs.staticKitsRef, (kits) => {
-            let staticKits = [];
-            for (let kit of kits) {
-                staticKits.push ({
-                    title : kit.displayName,
-                    description : kit.comments,
-                    latlng : {
-                        latitude : kit.coordinates.lat,
-                        longitude : kit.coordinates.long,
-                    },
-                    id : kit.id,
-                    key : kit.id
-                })
-            }
-            
-            this.setState ({
-                staticKits : staticKits
-            });
+        Database.listenForItems (Database.firebaseRefs.staticKitsRef, async (kits) => {
+
+            await this.simpleLoadingFunction ( async () => {
+                let staticKits = [];
+
+                for (let kit of kits)
+                    staticKits.push ({
+                        title : kit.displayName,
+                        description : kit.comments,
+                        latlng : {
+                            latitude : kit.coordinates.lat,
+                            longitude : kit.coordinates.long,
+                        },
+                        id : kit.id,
+                        key : kit.id
+                    })
+                
+                this.setState ({
+                    staticKits : staticKits
+                });
+                
+            })
+
         });
 
         Database.genericListenForItem (Database.firebaseRefs.overdosesRef, Database.firebaseEventTypes.Added, (item) => {
@@ -172,31 +187,34 @@ export default class MapComponent extends Component {
             }
         })
 
-        Database.listenForItems (Database.firebaseRefs.overdosesRef, (items) => {
+        Database.listenForItems (Database.firebaseRefs.overdosesRef, async (items) => {
 
             if (!this.overdosesLoaded) {
-            
-                let overdoses = [];
+                await this.simpleLoadingFunction ( async () => {
 
-                overdoses = items.map ( (overdose) => { 
-                    return Overdose.generateOverdoseFromSnapshot (overdose);
+                    let overdoses = [];
+
+                    overdoses = items.map ( (overdose) => { 
+                        return Overdose.generateOverdoseFromSnapshot (overdose);
+                    })
+
+                    let currentTimestamp = moment ()
+                    let startDate = currentTimestamp.clone().subtract (2, 'days').startOf ('day')
+                    let endDate   = currentTimestamp.clone().add (2, 'days').endOf ('day')
+
+                    overdoses = overdoses.filter ( (item) => {
+                        let compareDate = moment (item.date)
+                        return compareDate.isBetween (startDate, endDate);
+                    })
+
+                    this.setState ({
+                        overdoses : overdoses
+                    })
+
+                    this.overdosesLoaded = true;
+
                 })
-
-                let currentTimestamp = moment ()
-                let startDate = currentTimestamp.clone().subtract (2, 'days').startOf ('day')
-                let endDate   = currentTimestamp.clone().add (2, 'days').endOf ('day')
-
-                overdoses = overdoses.filter ( (item) => {
-                    let compareDate = moment (item.date)
-                    return compareDate.isBetween (startDate, endDate);
-                })
-
-                this.setState ({
-                    overdoses : overdoses
-                })
-
-                this.overdosesLoaded = true;
-
+                
             }
 
         });
@@ -211,6 +229,33 @@ export default class MapComponent extends Component {
     async componentWillUnmount () {
         navigator.geolocation.clearWatch (this.watchId);
         this.mounted = false;
+    }
+
+    // PRECONDITION : isLoading must be true before function call
+    simpleLoadingFunction = async (func) => {
+        try {
+            ++MapComponent.spinnerFunctionsLoading;
+
+            // Code commented below will not start the spinner, therefore precondition
+            /*
+                this.setState ({
+                    isLoading : true
+                });
+            */
+
+            await func ();
+            
+        } catch (error) {
+            console.warn (error);
+            genericErrorDescriptionAlert (error);
+        } finally {
+            --MapComponent.spinnerFunctionsLoading;
+
+            if (MapComponent.spinnerFunctionsLoading === 0 && this.mounted)
+                this.setState ({
+                    isLoading : false
+                })
+        }
     }
 
     genericCreateRegion (location) {
@@ -285,17 +330,27 @@ export default class MapComponent extends Component {
     render () {
         return (
             <View style = { styles.container }>
+            
+                <Spinner
+                    visible = { this.state.isLoading }
+                    textContent = { "Loading..." }
+                    textStyle = {
+                        { color : '#FFF' }
+                    }
+                    cancelable = { false } />
+
                 <TouchableOpacity
                     styles = { styles.findMeBtn }
                     onPress = { this.findMe } 
                     underlayColor = '#fff'>
+
                     <Image 
                         source = {
                             require('../../../assets/location.imageset/define_location.png')
-                        }
-                    />
+                        } />
 
                 </TouchableOpacity>
+
                 <MapView 
                     style = { styles.map }
                     initialRegion = { this.state.region }
@@ -341,13 +396,14 @@ export default class MapComponent extends Component {
                                 <MapCallout 
                                     title = { overdoseTitle }
                                     description = { `Reported Overdose at ${ formatDateTime (marker.timestamp) }` }
-                                    url = { generateAppleMapsUrl ( this.state.userLocation.latlng, marker.latlng ) }
+                                    url = { this.state.userLocation ? generateAppleMapsUrl ( this.state.userLocation.latlng, marker.latlng ) : '' }
                                 />
                                 
                             </MapView.Marker>
                         ))
                     }
                 </MapView>
+                
             </View>
         );
     }
