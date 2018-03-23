@@ -13,6 +13,7 @@
     "react-native-maps": "^0.19.0",
     "react-native-maps-google": "^1.1.4",
     "react-native-open-maps": "^0.1.1",
+    "react-native-permissions": "^1.1.1",
     "react-native-popup-dialog": "^0.10.46",
     "react-navigation": "^1.0.0-beta.22",
     "react-redux": "^5.0.6",

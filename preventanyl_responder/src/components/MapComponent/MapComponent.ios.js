@@ -11,8 +11,9 @@ import * as firebase from 'firebase';
 import Database from '../../database/Database'
 import PushNotifications from '../../pushnotifications/PushNotifications';
 import PreventanylNotifications from '../../pushnotifications/PreventanylNotifications';
+import PermissionsHandler from '../../utils/PermissionsHandler';
 
-import { getCurrentLocation, convertLocationToLatitudeLongitude, getCurrentLocationAsync } from '../../utils/location';
+import { getCurrentLocation, getCurrentLocationAsync, convertLocationToLatitudeLongitude } from '../../utils/location';
 import { formatDateTime } from '../../utils/localTimeHelper';
 import { genericErrorAlert } from '../../utils/genericAlerts';
 import { generateAppleMapsUrl } from '../../utils/linkingUrls';
@@ -53,20 +54,7 @@ export default class MapComponent extends Component {
         this.findMe = this.findMe.bind (this);
 
         PushNotifications.setup ();
-
-        getCurrentLocationAsync ( (location) => {
-            this.setState ({
-                userLocation    : convertLocationToLatitudeLongitude (location),
-            })
-
-            MapComponent.locationEnabled = true;
-            
-        }, (errorMessage) => {
-
-            MapComponent.locationEnabled = false;
-
-            // genericErrorAlert (errorMessage);
-        })
+        
     }
 
     async componentDidMount () {
