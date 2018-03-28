@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppRegistry, Platform, View, StyleSheet } from 'react-native';
+import { AppRegistry, AppState, Platform, View, StyleSheet } from 'react-native';
 
 import { AppLoading } from 'expo';
 
@@ -14,8 +14,12 @@ export default class App extends React.Component {
 
     state = {
         loggedIn : false,
-        isReady : false
+        isReady  : false,
+        appState : AppState.currentState
     };
+
+    static pauseFuncs  = [];
+    static resumeFuncs = [];
 
     async componentWillMount () {
         firebase.auth().onAuthStateChanged( user =>
@@ -25,6 +29,50 @@ export default class App extends React.Component {
               }
             )
         );
+    }
+
+    componentDidMount() {
+        AppState.addEventListener('change', this._handleAppStateChange);
+    }
+
+    componentWillUnmount() {
+        AppState.removeEventListener('change', this._handleAppStateChange);
+    }
+
+    _handleAppStateChange = (nextAppState) => {
+        if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
+            console.log('App has come to the foreground!')
+            App.resumeFuncs.map ( func => {
+                func ();
+            })
+        } else {
+            console.log('App has gone to the background!')
+            App.pauseFuncs.map ( func => {
+                func ();
+            })
+        }
+
+        this.setState (
+            { 
+                appState: nextAppState
+            }
+        );
+    }
+
+    static addPauseFunction (func) {
+        App.pauseFuncs.push (func);
+    }
+
+    static addResumeFunction (func) {
+        App.resumeFuncs.push (func);
+    }
+
+    static emptyPauseFunctions () {
+        App.pauseFuncs = [];
+    }
+
+    static emptyResumeFunctions () {
+        App.resumeFuncs = [];
     }
 
     render() {

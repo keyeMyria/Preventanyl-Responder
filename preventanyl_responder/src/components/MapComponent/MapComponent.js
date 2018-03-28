@@ -22,11 +22,14 @@ import MapCallout from '../../subcomponents/MapCallout/MapCallout';
 
 import Overdose from '../../objects/Overdose';
 
+import App from '../../../App';
+
 const overdoseTitle = "Overdose";
 
 export default class MapComponent extends Component {
 
     overdosesLoaded                = false;
+    watchId                        = undefined;
     static spinnerFunctionsLoading = 0;
 
     constructor () {
@@ -57,16 +60,12 @@ export default class MapComponent extends Component {
         
     }
 
-    async componentDidMount () {
-        this.mounted = true;
-
-        this.setState ({
-            isLoading : true
-        });
-
+    watchLocation () {
+        this.stopFollowingUserLocation ();
         this.watchId = navigator.geolocation.watchPosition (
             async (position) => {
                 // console.log (position)
+
                 this.setState ({
                     userLocation : {
                         latlng : {
@@ -105,6 +104,39 @@ export default class MapComponent extends Component {
                 distanceFilter : 10
             }
         );
+    }
+
+    stopFollowingUserLocation () {
+        navigator.geolocation.clearWatch (this.watchId);
+    }
+
+    async componentDidMount () {
+        this.mounted = true;
+
+        this.setState (
+            {
+            isLoading : true
+            }
+        );
+
+        this.watchLocation ();
+
+        App.addResumeFunction ( () => {
+            setupLocation ( (location) => {
+                if (location)
+                    this.setState (
+                        {
+                            region : location
+                        }
+                    )
+
+                this.watchLocation ();
+            }, (error) => {
+                console.log (error);
+            })
+        })
+
+        
 
         Database.listenForItems (Database.firebaseRefs.staticKitsRef, async (kits) => {
 
@@ -227,7 +259,7 @@ export default class MapComponent extends Component {
     }
 
     async componentWillUnmount () {
-        navigator.geolocation.clearWatch (this.watchId);
+        this.stopFollowingUserLocation ();
         this.mounted = false;
     }
 
