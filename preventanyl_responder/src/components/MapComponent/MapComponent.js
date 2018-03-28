@@ -115,28 +115,27 @@ export default class MapComponent extends Component {
 
         this.setState (
             {
-            isLoading : true
+                isLoading : true
             }
         );
 
         this.watchLocation ();
 
+        // Could clear by adding to pauseFunctions however it is being cleared in componentWillUnmount
         App.addResumeFunction ( () => {
-            setupLocation ( (location) => {
-                if (location)
-                    this.setState (
-                        {
-                            region : location
-                        }
-                    )
 
+            setupLocation ( (result) => {
+
+                this.convertLocationMount (result, (location) => {
+                    console.log ('location ,', location);
+                })
+            
                 this.watchLocation ();
             }, (error) => {
                 console.log (error);
             })
-        })
 
-        
+        });
 
         Database.listenForItems (Database.firebaseRefs.staticKitsRef, async (kits) => {
 
@@ -308,17 +307,28 @@ export default class MapComponent extends Component {
         }
     }
 
+    convertLocationMount (result, successCallback) {
+        let location = convertLocationToLatitudeLongitude (result);
+
+        if (this.mounted)
+            this.setState (
+                {
+                    userLocation : location
+                }
+            );
+
+        location = this.genericCreateRegion (location.latlng);
+
+        successCallback (location);
+    }
+
     createRegionCurrentLocation (successCallback, failureCallback) {
 
         getCurrentLocation ((result) => {
-            let location = convertLocationToLatitudeLongitude (result);
+            this.convertLocationMount (result, (location) => {
+                successCallback (location);
+            })
 
-            if (this.mounted)
-                this.state.userLocation = location;
-
-            location = this.genericCreateRegion (location.latlng);
-
-            successCallback (location);
         }, (error) => {
             failureCallback (new Error("Unable to create region"));
         })
