@@ -288,7 +288,6 @@ export default class MapComponent extends Component {
 
             successCallback (location);
         }, (error) => {
-            console.log (error);
             failureCallback (new Error("Unable to create region"));
         })
 
@@ -305,7 +304,6 @@ export default class MapComponent extends Component {
 
             successCallback (location);
         }, (error) => {
-            console.log (error);
             failureCallback (new Error("Unable to create region"));
         })
     }
@@ -339,7 +337,6 @@ export default class MapComponent extends Component {
             // Center on user position
             this.map.animateToRegion (this.state.region);
         }, (error) => {
-            console.log (error);
             genericErrorAlert ("Failed to find user");
         });
 
