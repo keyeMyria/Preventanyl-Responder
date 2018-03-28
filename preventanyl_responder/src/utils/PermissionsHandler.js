@@ -1,9 +1,9 @@
 import Permissions from 'react-native-permissions'
-import LocationHelper from '../utils/location';
+import LocationHelper from './location';
 
 export default class PermissionsHandler {
 
-    permissionTypes = Object.freeze ({
+    static permissionTypes = Object.freeze ({
         "LOCATION"           : "location",
         "CAMERA"             : "camera",
         "MICROPHONE"         : "microphone",
@@ -24,51 +24,83 @@ export default class PermissionsHandler {
 
     })
 
-    permissionStates = Object.freeze ({
+    static permissionStates = Object.freeze ({
         "AUTHORIZED"   : "authorized",
         "DENIED"       : "denied",
         "RESTRICTED"   : "restricted",
         "UNDETERMINED" : "'undetermined'"
     })
 
-    errorMessages = Object.freeze ({
-        "LOCATION_DENIED" : 'You cannot access the entire features of the app without location' 
+    static errorMessages = Object.freeze ({
+        "LOCATION_DENIED"     : 'You cannot access the entire features of the app without location' ,
+        'NOTIFICATION_DENIED' : 'You cannot help anybody that well without notifications :('
     })
 
-    static genericCheckPermission (permission, successCallback, failureCallback) {
-        Permissions.check (permission).then ( response => {
-            if (response !== permissionStates.AUTHORIZED)
+    static iosFlags = Object.freeze ({
+        "LOCATION"           : { 
+            type: 'always' 
+        },
+        "CAMERA"             : {},
+        "MICROPHONE"         : {},
+    	"PHOTO"              : {},
+    	"CONTACTS"           : {},
+    	"EVENT"              : {},
+    	"BLUETOOTH"          : {},
+    	"REMINDER"           : {},
+    	"PUSH_NOTIFICATION"  : {
+            type: ['alert', 'badge']
+        },
+    	"BACKGROUND_REFRESH" : {},
+    	"SPEECH_REGONITION"  : {},
+        "MEDIA_LIBRARY"      : {},
+    	"MOTION"             : {},
+        "STORAGE"            : {},
+    	"PHONE_CALL"         : {},
+    	"READ_SMS"           : {},
+    	"RECEIVE_SMS"        : {}
+    })
+
+    static genericCheckPermission (permission, type, successCallback, failureCallback) {
+        Permissions.check (permission, type).then ( response => {
+            if (response !== PermissionsHandler.permissionStates.AUTHORIZED)
                 failureCallback ()
             else
                 successCallback ()
         })
     }
 
-    static genericRequestPermission (permission, successCallback, failureCallback) {
-        Permissions.request (permission).then ( response => {
-            if (response !== permissionStates.AUTHORIZED)
+    static genericRequestPermission (permission, type, successCallback, failureCallback) {
+        console.log ('permission', permission);
+        Permissions.request (permission, { type: 'always' }).then ( response => {
+            if (response !== PermissionsHandler.permissionStates.AUTHORIZED)
                 failureCallback ()
             else
                 successCallback ()
+        }).catch (error => {
+            console.warn ('error : ', error);
         })
     }
 
     static async requestLocationPermission (successCallback, failureCallback) {
-        genericRequestPermission (permissionTypes.LOCATION, () => {
+
+        console.log ("*requesting location*")
+
+        PermissionsHandler.genericRequestPermission (PermissionsHandler.permissionTypes.LOCATION, PermissionsHandler.iosFlags.LOCATION, () => {
                 LocationHelper.locationEnabled = true;
                 successCallback ();
             }, () => {
+                console.log ("SET TO FALSE");
                 LocationHelper.locationEnabled = false;
-                failureCallback (errorMessages.LOCATION_DENIED)
+                failureCallback (PermissionsHandler.errorMessages.LOCATION_DENIED)
         });
     }
 
     // REMOVE CODE FROM PUSHNOTIFICATIONS FILE AND ADD TO HERE
     static requestPushNotificationPermission (successCallback, failureCallback) {
-        genericRequestPermission (permissionTypes.PUSH_NOTIFICATION, () => {
+        PermissionsHandler.genericRequestPermission (PermissionsHandler.permissionTypes.PUSH_NOTIFICATION, PermissionsHandler.iosFlags.PUSH_NOTIFICATION, () => {
                 successCallback ();
             }, () => {
-                failureCallback (errorMessages.LOCATION_DENIED)
+                failureCallback (PermissionsHandler.errorMessages.NOTIFICATIONS_DENIED)
         });
     }
     

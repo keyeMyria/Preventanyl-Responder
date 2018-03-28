@@ -13,7 +13,7 @@ import PushNotifications from '../../pushnotifications/PushNotifications';
 import PreventanylNotifications from '../../pushnotifications/PreventanylNotifications';
 import PermissionsHandler from '../../utils/PermissionsHandler';
 
-import { getCurrentLocation, getCurrentLocationAsync, convertLocationToLatitudeLongitude } from '../../utils/location';
+import { convertLocationToLatitudeLongitude, getCurrentLocation, getCurrentLocationAsync, setupLocation } from '../../utils/location';
 import { formatDateTime } from '../../utils/localTimeHelper';
 import { genericErrorAlert } from '../../utils/genericAlerts';
 import { generateAppleMapsUrl } from '../../utils/linkingUrls';
@@ -288,14 +288,31 @@ export default class MapComponent extends Component {
 
             successCallback (location);
         }, (error) => {
+            console.log (error);
             failureCallback (new Error("Unable to create region"));
         })
 
     }
 
+    setupRegionCurrentLocation (successCallback, failureCallback) {
+        setupLocation ((result) => {
+            let location = convertLocationToLatitudeLongitude (result);
+
+            if (this.mounted)
+                this.state.userLocation = location;
+
+            location = this.genericCreateRegion (location.latlng);
+
+            successCallback (location);
+        }, (error) => {
+            console.log (error);
+            failureCallback (new Error("Unable to create region"));
+        })
+    }
+
     setInitialRegionState() {
 
-        this.createRegionCurrentLocation ( (result) => {
+        this.setupRegionCurrentLocation ( (result) => {
             this.setState ({
                 region : result
             });
@@ -322,6 +339,7 @@ export default class MapComponent extends Component {
             // Center on user position
             this.map.animateToRegion (this.state.region);
         }, (error) => {
+            console.log (error);
             genericErrorAlert ("Failed to find user");
         });
 
