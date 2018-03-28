@@ -1,6 +1,6 @@
 import { Constants, Location } from 'expo';
 
-import PermissionsHandler from './PermissionsHandler';
+import ExpoPermissionsHandler from './ExpoPermissionsHandler';
 
 export default class LocationHelper {
     static locationEnabled = false;
@@ -18,7 +18,7 @@ export const getCurrentLocation = (successCallback, failureCallback) => {
         });
     else {
         return new Promise ((resolve, reject) => {
-            throw new Error (LOCATION_DENIED)
+            throw new Error (ExpoPermissionsHandler.errorMessages.LOCATION_DENIED)
         }).then (result => {
             successCallback (result);
         }).catch (error => {
@@ -29,7 +29,7 @@ export const getCurrentLocation = (successCallback, failureCallback) => {
 
 export const getCurrentLocationAsync = async (successCallback, failureCallback) => {
 
-    PermissionsHandler.requestLocationPermission ( async () => {
+    ExpoPermissionsHandler.requestLocationPermission ( async () => {
 
         let location = await Location.getCurrentPositionAsync ( { } );
         successCallback (location)
@@ -37,6 +37,12 @@ export const getCurrentLocationAsync = async (successCallback, failureCallback) 
     }, failureCallback)
 
 };
+
+export const setupLocation = async (successCallback, failureCallback) => {
+    await getCurrentLocationAsync (async () => {
+        getCurrentLocation (successCallback, failureCallback);
+    }, failureCallback);
+}
 
 export const convertLocationToLatitudeLongitude = (location) => {
     /*  Object {
