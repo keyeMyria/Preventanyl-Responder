@@ -1,6 +1,6 @@
 // Wherever you build your reducers
 import { combineReducers, createStore, applyMiddleware, compose } from 'redux'
-import AppNavigation from '../Navigation/DrawerNavigation/AppNavigation'
+import AppNavigation from '../src/navigation/DrawerNavigation/AppNavigation'
 
 const navReducer = (state, action) => {
   const newState = AppNavigation.router.getStateForAction(action, state)

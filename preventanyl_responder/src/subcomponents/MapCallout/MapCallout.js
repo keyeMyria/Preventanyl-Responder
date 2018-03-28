@@ -60,6 +60,42 @@ export default class MapCallout extends Component {
                 </MapView.Callout>
             );
         }
+
+        return (
+            <MapView.Callout>
+                    <Text>{ this.props.title }</Text>
+                    <Text>{ wordWrap (this.props.description, 40) }</Text>
+                    <TouchableOpacity onPress = { () => {
+                        let url = this.props.url;
+                        console.log (url);
+                        if (LocationHelper.locationEnabled && url != '')
+                            Linking.canOpenURL (url).then ( (supported) => {
+                                if (!supported)
+                                    genericErrorAlert ("You must have apple maps installed to use this")
+                                else {
+                                    return Linking.openURL (url).then ( (data) => {
+                                        console.log (data);
+                                    }).catch ( (error) => {
+                                        console.log (error)
+                                        genericErrorAlert ("You must have apple maps installed to use this")
+                                    })
+                                }
+                            }).catch ( (error) => {
+                                console.log (error);
+                                genericErrorAlert ("Unable to give directions")
+                            })
+                        else {
+                            genericErrorAlert (NO_USERLOCAION_AVAILABLE_ERROR_MESSAGE);
+                        }
+                     } }>
+                        <Image
+                            source = {
+                                require ('../../../assets/Car.imageset/car.png')
+                            }
+                        />
+                    </TouchableOpacity>
+                </MapView.Callout>
+        );
     
     }
 
