@@ -1,7 +1,7 @@
 import * as firebase from "firebase";
 
 import spinnerFunction from '../utils/spinnerFunction';
-import { genericVerificationAlert } from '../utils/genericAlerts';
+import { genericVerificationAlert, genericErrorAlert } from '../utils/genericAlerts';
 
 const config = {
     apiKey: "AIzaSyBa2ZiHRF2TrEaLBw3JrctIgT-UOU0tN84",
@@ -12,7 +12,8 @@ const config = {
     messagingSenderId: "111767423984"
 };
 
-const firebaseApp = firebase.initializeApp (config);
+const firebaseApp        = firebase.initializeApp (config);
+const MAX_ATTEMPTS_LOGIN = 10;
 
 export default class Database {
 
@@ -24,6 +25,7 @@ export default class Database {
     })
 
     static currentUser = undefined;
+    static attempts    = 0;
 
     static firebaseEventTypes = Object.freeze ({
         "Added"   : "child_added",
@@ -162,6 +164,13 @@ export default class Database {
     }
 
     static async login(email, pass, successCallback, failureCallback) {
+        if (Database.attempts == MAX_ATTEMPTS_LOGIN) {
+            genericErrorAlert ("Too Many Attemps To Login");
+            return;
+        }
+
+        ++Database.attempts;
+
         await firebase.auth().signInWithEmailAndPassword(email, pass).then (function (user) {
                 Database.currentUser = user;
                 spinnerFunction ( () => {
@@ -180,6 +189,7 @@ export default class Database {
                 console.log (errorMessage);
                 failureCallback ();
             });
+
     }
 
     static async logout(successCallback, failureCallback) {
