@@ -4,9 +4,10 @@ import * as firebase from 'firebase';
 var data = []
 
 import { Permissions, Notifications } from 'expo';
-import { genericAlert, genericErrorAlert } from '../utils/genericAlerts';
+import { overdoseNotificationAlert } from '../utils/genericAlerts';
 
 import { getCurrentLocation, convertLocationToLatitudeLongitude } from '../utils/location';
+import { generateAppleMapsUrl, openMaps } from '../utils/linkingUrls';
 
 import Database from '../database/Database';
 import Overdose from '../objects/Overdose';
@@ -129,7 +130,15 @@ export default class PushNotifications {
     static _handleNotification = (notification) => {
         console.log ("NOTIFICATION RECIEVED");
         console.log (notification)
-        genericAlert (notification.data.title, notification.data.message);
+        overdoseNotificationAlert (notification.data.title, notification.data.message, () => {
+            getCurrentLocation ( (location) => {
+                url = generateAppleMapsUrl (convertLocationToLatitudeLongitude (location).latlng, notification.data.location );
+                console.log ('URL : ', url)
+                openMaps (url);
+            }, (error) => {
+                console.log (error);
+            })
+        });
     };
     
     //send the push notification 

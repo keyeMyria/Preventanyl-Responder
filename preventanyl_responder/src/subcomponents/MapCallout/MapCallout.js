@@ -8,6 +8,8 @@ import MapView from 'react-native-maps';
 import { wordWrap } from '../../utils/strings';
 import { genericErrorAlert } from '../../utils/genericAlerts';
 
+import { openMaps } from '../../utils/linkingUrls';
+
 const DIALOG_HEIGHT = 0.3;
 const DIALOG_WIDTH  = 0.75;
 const DIALOG_LEFT_BUTTON_TEXT = "CANCEL";
@@ -32,21 +34,7 @@ export default class MapCallout extends Component {
                         let url = this.props.url;
                         console.log (url);
                         if (LocationHelper.locationEnabled && url != '')
-                            Linking.canOpenURL (url).then ( (supported) => {
-                                if (!supported)
-                                    genericErrorAlert ("You must have apple maps installed to use this")
-                                else {
-                                    return Linking.openURL (url).then ( (data) => {
-                                        console.log (data);
-                                    }).catch ( (error) => {
-                                        console.log (error)
-                                        genericErrorAlert ("You must have apple maps installed to use this")
-                                    })
-                                }
-                            }).catch ( (error) => {
-                                console.log (error);
-                                genericErrorAlert ("Unable to give directions")
-                            })
+                            openMaps (url);
                         else {
                             genericErrorAlert (NO_USERLOCAION_AVAILABLE_ERROR_MESSAGE);
                         }
@@ -69,21 +57,7 @@ export default class MapCallout extends Component {
                         let url = this.props.url;
                         console.log (url);
                         if (LocationHelper.locationEnabled && url != '')
-                            Linking.canOpenURL (url).then ( (supported) => {
-                                if (!supported)
-                                    genericErrorAlert ("You must have apple maps installed to use this")
-                                else {
-                                    return Linking.openURL (url).then ( (data) => {
-                                        console.log (data);
-                                    }).catch ( (error) => {
-                                        console.log (error)
-                                        genericErrorAlert ("You must have apple maps installed to use this")
-                                    })
-                                }
-                            }).catch ( (error) => {
-                                console.log (error);
-                                genericErrorAlert ("Unable to give directions")
-                            })
+                            openMaps (url);
                         else {
                             genericErrorAlert (NO_USERLOCAION_AVAILABLE_ERROR_MESSAGE);
                         }

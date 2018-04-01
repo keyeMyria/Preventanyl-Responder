@@ -2,6 +2,7 @@ import { Alert } from 'react-native';
 
 import Database from '../database/Database';
 
+const OVERDOSE_DIRECTIONS = "Directions";
 const ERROR_TITLE = "Whoops!";
 const REQUIRED_FIELD_TITLE = "Required Field";
 const RESEND_EMAIL = "Resend email";
@@ -67,4 +68,23 @@ export const genericVerificationAlert = (title, message) => {
 
 export const genericDefaultAlert = () => {
     genericAlert (DEFAULT_TITLE, DEFAULT_MESSAGE)
+}
+
+export const overdoseNotificationAlert = (title, message, func) => {
+    Alert.alert (
+        title,
+        message,
+        [
+            {
+                text : OVERDOSE_DIRECTIONS, onPress : () => {
+                    func ();
+                }
+            },
+            {
+                text : OKAY, onPress : () => {
+                    console.log ('Okay pressed');
+                }
+            }
+        ]
+    );
 }
