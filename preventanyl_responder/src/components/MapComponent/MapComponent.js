@@ -84,6 +84,7 @@ export default class MapComponent extends Component {
 
                 let value = {
                     "id"  : PushNotifications.expoToken,
+                    "logged_in" : true,
                     "loc" : {
                         "lat" : this.state.userLocation.latlng.latitude,
                         "lng" : this.state.userLocation.latlng.longitude
@@ -142,18 +143,22 @@ export default class MapComponent extends Component {
             await this.simpleLoadingFunction ( async () => {
                 let staticKits = [];
 
-                for (let kit of kits)
-                    staticKits.push ({
-                        title : kit.displayName,
-                        description : kit.comments,
-                        latlng : {
-                            latitude : kit.coordinates.lat,
-                            longitude : kit.coordinates.long,
-                        },
-                        id : kit.id,
-                        key : kit.id
-                    })
-                
+                kits.map ( (kit) => {
+                        staticKits.push (
+                            {
+                                title : kit.displayName,
+                                description : kit.comments,
+                                latlng : {
+                                    latitude : kit.coordinates.lat,
+                                    longitude : kit.coordinates.long,
+                                },
+                                id  : kit.id,
+                                key : kit.id
+                            }
+                        )
+                    }
+                )
+                    
                 this.setState ({
                     staticKits : staticKits
                 });

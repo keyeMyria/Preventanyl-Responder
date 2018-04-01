@@ -18,6 +18,7 @@ export default class PushNotifications {
     };
 
     static expoToken;
+    static notificationSubscription = undefined;
 
     static setup = async () => {
         PushNotifications.registerForPushNotificationsAsync ();
@@ -85,7 +86,7 @@ export default class PushNotifications {
 
         console.log ('EXPOTOKEN : ', PushNotifications.expoToken)
     
-        var messages = []
+        /* var messages = []
     
         message = {
             "to"    : token,
@@ -99,7 +100,7 @@ export default class PushNotifications {
     
         messages.push({
             message
-        });
+        }); */
     
         // POST the token to your backend server from where you can retrieve it to send push notifications.
         /* return fetch('https://exp.host/--/api/v2/push/send', {
@@ -119,10 +120,13 @@ export default class PushNotifications {
     }
     
     static handleRegister = async () => {
-        this._notificationSubscription = Notifications.addListener(this._handleNotification);
+        // this._notificationSubscription = Notifications.addListener (this._handleNotification);
+        // this._notificationSubscription = Notifications.addListener (PushNotifications._handleNotification);
+        if (PushNotifications.notificationSubscription === undefined)
+            PushNotifications.notificationSubscription = Notifications.addListener (PushNotifications._handleNotification);
     }
-    
-    _handleNotification = (notification) => {
+
+    static _handleNotification = (notification) => {
         console.log ("NOTIFICATION RECIEVED");
         console.log (notification)
         genericAlert (notification.data.title, notification.data.message);

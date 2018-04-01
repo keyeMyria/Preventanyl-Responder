@@ -21,7 +21,7 @@ export default class Database {
         "staticKitsRef"    : firebase.database ().ref ('statickits'),
         "overdosesRef"     : firebase.database ().ref ('overdoses'),
         "usersRef"         : firebase.database ().ref ().child ("user"),
-        "userLocationsRef" : firebase.database().ref ().child ("userLocations")
+        "userLocationsRef" : firebase.database().ref  ().child ("userLocations")
     })
 
     static currentUser = undefined;
@@ -30,7 +30,11 @@ export default class Database {
     static firebaseEventTypes = Object.freeze ({
         "Added"   : "child_added",
         "Changed" : "child_changed",
-        "Removed" : "child_removed"
+        "Removed" : "child_removed",
+    })
+
+    static firebaseSingleEventTypes = Object.freeze ({
+        "Value" : "value"
     })
 
     static genericListenForItems (itemsRef, callback) {
@@ -75,6 +79,22 @@ export default class Database {
         itemsRef.child (`/${ item.id }`).update (item)
     }
 
+    static getItemWithChildPath (itemsRef, childPath, callback) {
+
+        itemsRef.child (`${ childPath }`).once (Database.firebaseSingleEventTypes.Value, (snapshot) => {
+
+            value = {};
+
+            snapshot.forEach ( (child) => {
+                value[child.key] = child.val ();
+            });
+
+            callback (value);
+
+        });
+
+    }
+
     static listenForItems (itemsRef, callback) {
 
         Database.genericListenForItems (itemsRef, (snapshotVal) => {
@@ -112,7 +132,7 @@ export default class Database {
     static async sendVerificationEmail () {
         if (!Database.currentUser.emailVerified) {
             console.log (Database.currentUser.emailVerified);
-            Database.currentUser.sendEmailVerification().then (function () {
+            Database.currentUser.sendEmailVerification().then ( () => {
                 console.log ("email sent");
             }).catch (function (error) {
                 console.log (error);
@@ -146,7 +166,7 @@ export default class Database {
                 lastName: $scope.lastName,
                 id:user.uid
             }
-            ref.child(user.uid).set(data).then(function(ref) {//use 'child' and 'set' combination to save data in your own generated key
+            ref.child(user.uid).set(data).then(function(ref) {// use 'child' and 'set' combination to save data in your own generated key
                 console.log("Saved");
                 $location.path('/profile');
             }, function(error) {
@@ -159,7 +179,7 @@ export default class Database {
             const { errorCode, errorMessage } = error;
             console.log (errorCode);
             console.log (errorMessage);
-            failureCallback();
+            failureCallback (error);
         });
     }
 
@@ -171,7 +191,7 @@ export default class Database {
 
         ++Database.attempts;
 
-        await firebase.auth().signInWithEmailAndPassword(email, pass).then (function (user) {
+        await firebase.auth().signInWithEmailAndPassword(email, pass).then ( (user) => {
                 Database.currentUser = user;
                 spinnerFunction ( () => {
                     Database.notifyUserVerification ();
@@ -187,7 +207,7 @@ export default class Database {
                 const { errorCode, errorMessage } = error;
                 console.log (errorCode);
                 console.log (errorMessage);
-                failureCallback ();
+                failureCallback (error);
             });
 
     }
@@ -199,7 +219,7 @@ export default class Database {
             // Navigate to login component
         } catch (error) {
             console.log(error.toString());
-            failureCallback ();
+            failureCallback (error);
         }
     }
 

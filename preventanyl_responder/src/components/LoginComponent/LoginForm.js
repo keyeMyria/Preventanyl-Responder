@@ -58,13 +58,13 @@ export default class LoginForm extends Component {
             
             await asyncTimeoutFunction ( 10000, async () => {
                 await Database.login (username, password, () => {
-                    console.log ("success function");
-                }, () => {
-                    spinnerFunction ( () => {
-                        genericErrorAlert ("Unable to login")
+                        console.log ("success function");
+                    }, () => {
+                        spinnerFunction ( () => {
+                            genericErrorAlert ("Unable to login")
+                        });
+                        console.log ("failure function");
                     });
-                    console.log ("failure function");
-                });
                 }, (response) => {
                     console.log ("Success");
                 }, (error) => {
