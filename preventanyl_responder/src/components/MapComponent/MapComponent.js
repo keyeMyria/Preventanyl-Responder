@@ -502,7 +502,7 @@ export default class MapComponent extends Component {
                                 coordinate  = { marker.latlng }
                                 title       = { marker.title }
                                 description = { marker.description }
-                                image       = { require('../../../assets/needle.imageset/needle.png') } >
+                                image       = { require('../../../assets/needle.imageset/needle-red.png') } >
 
                                 <MapCallout 
                                     title = { marker.title }
