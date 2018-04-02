@@ -15,7 +15,7 @@ import PermissionsHandler from '../../utils/PermissionsHandler';
 // import Icons from '../../utils/Icons';
 
 import LocationHelper, { convertLocationToLatitudeLongitude, getCurrentLocation, getCurrentLocationAsync, setupLocation } from '../../utils/location';
-import { formatDateTime } from '../../utils/localTimeHelper';
+import { formatDateTime, generateRangeCurrent } from '../../utils/localTimeHelper';
 import { genericErrorAlert } from '../../utils/genericAlerts';
 import { generateAppleMapsUrl } from '../../utils/linkingUrls';
 
@@ -58,6 +58,18 @@ export default class MapComponent extends Component {
                 },
                 error : null,
             },
+            detailedUserLocation : {
+                coords : {
+                    accuracy         : null,
+                    altitude         : null,
+                    altitudeAccuracy : null,
+                    heading          : null,
+                    latitude         : null,
+                    longitude        : null,
+                    speed            : null,
+                  },
+                  timestamp : null,
+            },
             locationImage   : require ('../../../assets/location.imageset/define_location.png'),
             isLoading       : false,
             notifyMessage   : 'Notifying in 5 seconds',
@@ -85,7 +97,8 @@ export default class MapComponent extends Component {
                             longitude : position.coords.longitude,
                         },
                         error     : null,
-                    }
+                    },
+                    detailedUserLocation : position
                 });
 
                 if (!Database.currentUser)
@@ -188,7 +201,13 @@ export default class MapComponent extends Component {
 
                 index = overdoses.find (obj => obj.id === overdose.id)
 
-                if (index !== undefined && index !== -1)
+                let dateRange = generateRangeCurrent (2);
+
+                let compareDate = moment (overdose.date)
+
+                console.log ("Item", item);
+
+                if (index !== undefined || index !== -1 || !compareDate.isBetween (dateRange.startDate, dateRange.endDate)) 
                     return;
 
                 overdoses.push (overdose)
@@ -246,13 +265,11 @@ export default class MapComponent extends Component {
                         return Overdose.generateOverdoseFromSnapshot (overdose);
                     })
 
-                    let currentTimestamp = moment ()
-                    let startDate = currentTimestamp.clone().subtract (2, 'days').startOf ('day')
-                    let endDate   = currentTimestamp.clone().add (2, 'days').endOf ('day')
+                    let dateRange = generateRangeCurrent (2);
 
                     overdoses = overdoses.filter ( (item) => {
                         let compareDate = moment (item.date)
-                        return compareDate.isBetween (startDate, endDate);
+                        return compareDate.isBetween (dateRange.startDate, dateRange.endDate);
                     })
 
                     this.setState ({
@@ -354,7 +371,8 @@ export default class MapComponent extends Component {
         if (this.mounted)
             this.setState (
                 {
-                    userLocation : location
+                    userLocation         : location,
+                    detailedUserLocation : result
                 }
             );
 
@@ -457,20 +475,20 @@ export default class MapComponent extends Component {
 
                     </TouchableOpacity>
 
-                    { this.state.userLocation.latlng.latitude != null && this.state.userLocation.latlng.longitude != null &&
-                       /* <MapView.Marker 
+                    { this.state.userLocation.latlng.latitude != null && this.state.userLocation.latlng.longitude != null && 
+
+                        <MapView.Marker 
                             coordinate  = { this.state.userLocation.latlng } 
                             title       = "Current position"
                             description = "You are here"
-                            image       = { require('../../../assets/location-arrow.imageset/location-arrow-3.png') /* Icons.components.FontAwesomeIcon.getImageSource ('location-arrow', 20) */ /* } /> */
+                            image       = { require('../../../assets/location-pin.imageset/location-pin-1.png') } />
                      
-                        <MapView.Circle
+                       /* <MapView.Circle
                             center = { this.state.userLocation.latlng }
                             fillColor = { "#1f68ef" }
-                            radius = { 2 }
+                            radius = { this.state.detailedUserLocation.coords.accuracy }
                             strokeColor = { "#add9f4" }
-                            strokeWidth = { 2 }
-                          />
+                            strokeWidth = { 2 } /> */
                     }
 
                     {
@@ -480,13 +498,8 @@ export default class MapComponent extends Component {
                                 key         = { index }
                                 coordinate  = { marker.latlng }
                                 title       = { marker.title }
-                                description = { marker.description } >
-
-                                <Image
-                                    source = { 
-                                        require('../../../assets/needle.imageset/needle.png') 
-                                    } 
-                                    style = { styles.markerIcon } />
+                                description = { marker.description }
+                                image       = { require('../../../assets/needle.imageset/needle.png') } >
 
                                 <MapCallout 
                                     title = { marker.title }
@@ -505,7 +518,7 @@ export default class MapComponent extends Component {
                                 title       = ''
                                 description = ''
                                 image       = {
-                                    require('../../../assets/pill.imageset/pill.png')
+                                    require('../../../assets/pill.imageset/pill-2.png')
                                 }>
 
                                 <MapCallout 
