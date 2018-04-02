@@ -183,6 +183,8 @@ export default class MapComponent extends Component {
                                 key : kit.id
                             }
                         )
+
+                        console.log ("DESC : ", formatAddressObjectForMarker (kit.address));
                     }
                 )
                     
@@ -206,11 +208,6 @@ export default class MapComponent extends Component {
                 let dateRange = generateRangeCurrent (2);
 
                 let compareDate = moment (overdose.date)
-
-                console.log ("Item", item);
-
-                console.log ("IN BETWEEN : ", compareDate.isBetween (dateRange.startDate, dateRange.endDate));
-                console.log ("IF CONDITION : ", (index !== undefined && index !== -1) || !compareDate.isBetween (dateRange.startDate, dateRange.endDate));
 
                 if ((index !== undefined && index !== -1) || !compareDate.isBetween (dateRange.startDate, dateRange.endDate)) 
                     return;
