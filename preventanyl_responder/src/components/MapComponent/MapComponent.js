@@ -183,8 +183,6 @@ export default class MapComponent extends Component {
                                 key : kit.id
                             }
                         )
-
-                        console.log ("DESC : ", formatAddressObjectForMarker (kit.address));
                     }
                 )
                     
