@@ -40,15 +40,6 @@ export const whiteSpaceFind = (x) => {
     return white.test(x.charAt(0));
 };
 
-/*
-    address
-        city: 
-        country: 
-        postalCode: 
-        provincestate: 
-        streetAddress: 
- */
-
 export const formatAddressObjectForMarker = (address) => {
     return `${ address.city }\n${ address.streetAddress }`
 }
