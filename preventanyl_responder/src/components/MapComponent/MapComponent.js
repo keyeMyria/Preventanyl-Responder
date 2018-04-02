@@ -18,6 +18,7 @@ import LocationHelper, { convertLocationToLatitudeLongitude, getCurrentLocation,
 import { formatDateTime, generateRangeCurrent } from '../../utils/localTimeHelper';
 import { genericErrorAlert } from '../../utils/genericAlerts';
 import { generateAppleMapsUrl } from '../../utils/linkingUrls';
+import { formatAddressObjectForMarker } from '../../utils/strings';
 
 import MapCallout from '../../subcomponents/MapCallout/MapCallout';
 
@@ -173,6 +174,7 @@ export default class MapComponent extends Component {
                             {
                                 title : kit.displayName,
                                 description : kit.comments,
+                                formattedDescription : formatAddressObjectForMarker (kit.address),
                                 latlng : {
                                     latitude : kit.coordinates.lat,
                                     longitude : kit.coordinates.long,
@@ -501,12 +503,12 @@ export default class MapComponent extends Component {
                                 key         = { index }
                                 coordinate  = { marker.latlng }
                                 title       = { marker.title }
-                                description = { marker.description }
+                                description = { marker.formattedDescription }
                                 image       = { require('../../../assets/needle.imageset/needle-red.png') } >
 
                                 <MapCallout 
                                     title = { marker.title }
-                                    description = { marker.description }
+                                    description = { marker.formattedDescription }
                                     url = { generateAppleMapsUrl ( this.state.userLocation.latlng, marker.latlng ) } />
 
                             </MapView.Marker>

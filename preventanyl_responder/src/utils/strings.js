@@ -39,3 +39,20 @@ export const whiteSpaceFind = (x) => {
     var white = new RegExp(/^\s$/);
     return white.test(x.charAt(0));
 };
+
+/*
+    address
+        city: 
+        country: 
+        postalCode: 
+        provincestate: 
+        streetAddress: 
+ */
+
+export const formatAddressObjectForMarker = (address) => {
+    return `${ address.streetAddress } ${ address.city }`
+}
+
+export const formatAddressObject = (address) => {
+    return `${ address.country }\n${ address.province }\n${ address.city }\n${ address.postalCode }\n${ address.streetAddress}`
+}
