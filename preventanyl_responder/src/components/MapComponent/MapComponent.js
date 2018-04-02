@@ -207,7 +207,10 @@ export default class MapComponent extends Component {
 
                 console.log ("Item", item);
 
-                if (index !== undefined || index !== -1 || !compareDate.isBetween (dateRange.startDate, dateRange.endDate)) 
+                console.log ("IN BETWEEN : ", compareDate.isBetween (dateRange.startDate, dateRange.endDate));
+                console.log ("IF CONDITION : ", (index !== undefined && index !== -1) || !compareDate.isBetween (dateRange.startDate, dateRange.endDate));
+
+                if ((index !== undefined && index !== -1) || !compareDate.isBetween (dateRange.startDate, dateRange.endDate)) 
                     return;
 
                 overdoses.push (overdose)
