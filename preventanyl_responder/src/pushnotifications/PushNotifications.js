@@ -27,8 +27,12 @@ export default class PushNotifications {
     }
 
     static awaitedSetup = async () => {
-        await PushNotifications.registerForPushNotificationsAsync ();
-        await PushNotifications.handleRegister ();
+        await Promise.all ([
+            PushNotifications.registerForPushNotificationsAsync (),
+            PushNotifications.handleRegister ()
+        ])
+        // await PushNotifications.registerForPushNotificationsAsync ();
+        // await PushNotifications.handleRegister ();
     }
 
     static loadSubscribers = () => {

@@ -12,8 +12,9 @@ import Database from '../../database/Database'
 import PushNotifications from '../../pushnotifications/PushNotifications';
 import PreventanylNotifications from '../../pushnotifications/PreventanylNotifications';
 import PermissionsHandler from '../../utils/PermissionsHandler';
+// import Icons from '../../utils/Icons';
 
-import { convertLocationToLatitudeLongitude, getCurrentLocation, getCurrentLocationAsync, setupLocation } from '../../utils/location';
+import LocationHelper, { convertLocationToLatitudeLongitude, getCurrentLocation, getCurrentLocationAsync, setupLocation } from '../../utils/location';
 import { formatDateTime } from '../../utils/localTimeHelper';
 import { genericErrorAlert } from '../../utils/genericAlerts';
 import { generateAppleMapsUrl } from '../../utils/linkingUrls';
@@ -32,6 +33,17 @@ export default class MapComponent extends Component {
     watchId                        = undefined;
     static spinnerFunctionsLoading = 0;
 
+    // Always undefined, ??
+    static images = Object.freeze (
+        {
+            "OVERDOSE"          : require ('../../../assets/key.imageset/key.png'),
+            "LOCATION_ENABLED"  : require ('../../../assets/location.imageset/define_location.png'),
+            "LOCATION_DISABLED" : require ('../../../assets/key.imageset/key.png'),
+        }
+    )
+
+    static images = {};
+
     constructor () {
         super ();
 
@@ -46,6 +58,7 @@ export default class MapComponent extends Component {
                 },
                 error : null,
             },
+            locationImage   : require ('../../../assets/location.imageset/define_location.png'),
             isLoading       : false,
             notifyMessage   : 'Notifying in 5 seconds',
             notifySeconds   : 5,
@@ -57,7 +70,6 @@ export default class MapComponent extends Component {
         this.findMe = this.findMe.bind (this);
 
         PushNotifications.setup ();
-        
     }
 
     watchLocation () {
@@ -294,6 +306,30 @@ export default class MapComponent extends Component {
         }
     }
 
+    setLocationCheck () {
+        this.setState (
+            {
+                locationEnabled : LocationHelper.locationEnabled
+            }
+        )
+    }
+
+    changeFindMeImage () {
+        // const filePath = LocationHelper.locationEnabled ? imagePaths.LOCATION_ENABLED: imagePaths.LOCATION_DISABLED
+        
+        /* this.setState (
+            {
+                locationImage : require (filePath)
+            }
+        ) */
+
+        this.setState (
+            {
+                locationImage : LocationHelper.locationEnabled ? MapComponent.images.LOCATION_ENABLED : MapComponent.images.LOCATION_DISABLED
+            }
+        )
+    }
+
     genericCreateRegion (location) {
         return {
             latitude       : location.latitude,
@@ -345,7 +381,7 @@ export default class MapComponent extends Component {
             let location = convertLocationToLatitudeLongitude (result);
 
             if (this.mounted)
-                this.state.userLocation = location;
+                userLocation = location;
 
             location = this.genericCreateRegion (location.latlng);
 
@@ -401,18 +437,6 @@ export default class MapComponent extends Component {
                     }
                     cancelable = { false } />
 
-                <TouchableOpacity
-                    styles = { styles.findMeBtn }
-                    onPress = { this.findMe } 
-                    underlayColor = '#fff'>
-
-                    <Image 
-                        source = {
-                            require('../../../assets/location.imageset/define_location.png')
-                        } />
-
-                </TouchableOpacity>
-
                 <MapView 
                     style = { styles.map }
                     initialRegion = { this.state.region }
@@ -420,11 +444,33 @@ export default class MapComponent extends Component {
                         this.map = map 
                         }
                     } >
+
+                    <TouchableOpacity
+                        style = { styles.findMeBtn }
+                        onPress = { this.findMe } 
+                        underlayColor = '#fff'>
+
+                        <Image 
+                            source = {
+                                require('../../../assets/location.imageset/define_location.png')
+                            } />
+
+                    </TouchableOpacity>
+
                     { this.state.userLocation.latlng.latitude != null && this.state.userLocation.latlng.longitude != null &&
-                        <MapView.Marker 
+                       /* <MapView.Marker 
                             coordinate  = { this.state.userLocation.latlng } 
                             title       = "Current position"
-                            description = "You are here" />
+                            description = "You are here"
+                            image       = { require('../../../assets/location-arrow.imageset/location-arrow-3.png') /* Icons.components.FontAwesomeIcon.getImageSource ('location-arrow', 20) */ /* } /> */
+                     
+                        <MapView.Circle
+                            center = { this.state.userLocation.latlng }
+                            fillColor = { "#1f68ef" }
+                            radius = { 2 }
+                            strokeColor = { "#add9f4" }
+                            strokeWidth = { 2 }
+                          />
                     }
 
                     {
@@ -435,11 +481,18 @@ export default class MapComponent extends Component {
                                 coordinate  = { marker.latlng }
                                 title       = { marker.title }
                                 description = { marker.description } >
+
+                                <Image
+                                    source = { 
+                                        require('../../../assets/needle.imageset/needle.png') 
+                                    } 
+                                    style = { styles.markerIcon } />
+
                                 <MapCallout 
                                     title = { marker.title }
                                     description = { marker.description }
-                                    url = { generateAppleMapsUrl ( this.state.userLocation.latlng, marker.latlng ) }
-                                />
+                                    url = { generateAppleMapsUrl ( this.state.userLocation.latlng, marker.latlng ) } />
+
                             </MapView.Marker>
                         ))
                     }
@@ -452,7 +505,7 @@ export default class MapComponent extends Component {
                                 title       = ''
                                 description = ''
                                 image       = {
-                                    require('../../../assets/key.imageset/key.png')
+                                    require('../../../assets/pill.imageset/pill.png')
                                 }>
 
                                 <MapCallout 
@@ -493,6 +546,10 @@ const styles = StyleSheet.create ({
         paddingRight : 10,
         paddingTop : 10,
         paddingBottom : 10
+    },
+    markerIcon : {
+        width:  50,
+        height: 50,
     }
 })
 

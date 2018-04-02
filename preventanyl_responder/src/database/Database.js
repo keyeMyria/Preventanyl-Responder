@@ -17,25 +17,31 @@ const MAX_ATTEMPTS_LOGIN = 10;
 
 export default class Database {
 
-    static firebaseRefs = Object.freeze ({
-        "staticKitsRef"    : firebase.database ().ref ('statickits'),
-        "overdosesRef"     : firebase.database ().ref ('overdoses'),
-        "usersRef"         : firebase.database ().ref ().child ("user"),
-        "userLocationsRef" : firebase.database().ref  ().child ("userLocations")
-    })
+    static firebaseRefs = Object.freeze (
+            {
+            "staticKitsRef"    : firebase.database ().ref ('statickits'),
+            "overdosesRef"     : firebase.database ().ref ('overdoses'),
+            "usersRef"         : firebase.database ().ref ().child ("user"),
+            "userLocationsRef" : firebase.database().ref  ().child ("userLocations")
+        }
+    )
 
     static currentUser = undefined;
     static attempts    = 0;
 
-    static firebaseEventTypes = Object.freeze ({
-        "Added"   : "child_added",
-        "Changed" : "child_changed",
-        "Removed" : "child_removed",
-    })
+    static firebaseEventTypes = Object.freeze (
+        {
+            "Added"   : "child_added",
+            "Changed" : "child_changed",
+            "Removed" : "child_removed",
+        }
+    )
 
-    static firebaseSingleEventTypes = Object.freeze ({
-        "Value" : "value"
-    })
+    static firebaseSingleEventTypes = Object.freeze (
+        {
+            "Value" : "value"
+        }
+    )
 
     static genericListenForItems (itemsRef, callback) {
         let items = [];

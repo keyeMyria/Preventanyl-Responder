@@ -13,7 +13,6 @@ export default class ProfileComponent extends Component {
 
                 obj.logged_in = false;
                 Database.addItemWithChildPath (Database.firebaseRefs.userLocationsRef, `/${ Database.currentUser.uid }/`, obj);
-                
                 Database.logout (() => {
                     console.log ("Logged out");
                 }, () => {
