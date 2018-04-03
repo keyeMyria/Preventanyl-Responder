@@ -53,7 +53,7 @@ const TabNavigation = TabNavigator (
                     tabBarLabel : 'Logout',
                     tabBarIcon  : ( { tintColor } ) => (
                         <Image 
-                            source = { require ('../../../assets/profile.imageset/user_male.png') }
+                            source = { require ('../../../assets/logout.imageset/logout.png') }
                             style  = { 
                                 [ 
                                     styles.icon, 
