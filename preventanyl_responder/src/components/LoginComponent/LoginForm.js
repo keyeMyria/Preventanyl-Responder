@@ -97,8 +97,7 @@ export default class LoginForm extends Component {
                     textStyle = {
                         { color : '#FFF' }
                     }
-                    cancelable = { false }
-                />
+                    cancelable = { false } />
 
                 <TextInput
                     placeholder = 'username or email'
