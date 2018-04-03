@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { AppRegistry, Text, View, Button, TouchableOpacity, Alert, AlertIOS, StyleSheet, Linking, Image } from 'react-native';
+import { AppRegistry, Text, View, TouchableOpacity, StyleSheet, Image } from 'react-native';
 
 import MapView, { AnimatedRegion, Animated } from 'react-native-maps';
-import Timestamp from 'react-timestamp';
 import moment from 'moment';
 import Spinner from 'react-native-loading-spinner-overlay';
 
@@ -10,7 +9,6 @@ import * as firebase from 'firebase';
 
 import Database from '../../database/Database'
 import PushNotifications from '../../pushnotifications/PushNotifications';
-import PreventanylNotifications from '../../pushnotifications/PreventanylNotifications';
 import PermissionsHandler from '../../utils/PermissionsHandler';
 
 import LocationHelper, { convertLocationToLatitudeLongitude, getCurrentLocation, getCurrentLocationAsync, setupLocation } from '../../utils/location';
