@@ -5,6 +5,7 @@ export default class StaticKit {
     constructor (id, key, title, description, formattedDescription, latlng) {
         this.id                   = id;
         this.key                  = key;
+        this.title                = title;
         this.description          = description;
         this.formattedDescription = formattedDescription;
         this.latlng               = latlng;
