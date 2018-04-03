@@ -7,27 +7,31 @@ import LoginForm from './LoginForm';
 
 export default class LoginComponent extends Component {
 
-  render () {
-    const { navigate } = this.props.navigation;
-    return (
-      <KeyboardAvoidingView behavior = 'padding' style = { styles.container }>
+    render () {
+        const { navigate } = this.props.navigation;
 
-        <TouchableWithoutFeedback onPress = { () => { DismissKeyboard() } }>
-            <View style = { styles.logoContainer }>
-                <Image 
-                  style = { styles.logo }
-                  source = { require ('../../../assets/images/logo/app-store.png') } />
-                  <Text style = { styles.title }>An app made for preventing overdoses using React-Native</Text>
-            </View>
-        </TouchableWithoutFeedback>
-        <TouchableWithoutFeedback onPress = { () => { DismissKeyboard() } }>
-            <View style = { styles.formContainer }>
-                <LoginForm />
-            </View>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
-    );
-  }
+        return (
+            <KeyboardAvoidingView behavior = 'padding' style = { styles.container }>
+
+                <TouchableWithoutFeedback onPress = { () => { DismissKeyboard() } }>
+                    <View style = { styles.logoContainer }>
+                        <Image 
+                          style = { styles.logo }
+                          source = { require ('../../../assets/images/logo/app-store.png') } />
+                          <Text style = { styles.title }>An app made for preventing overdoses using React-Native</Text>
+                    </View>
+                </TouchableWithoutFeedback>
+
+                <TouchableWithoutFeedback onPress = { () => { DismissKeyboard() } }>
+                    <View style = { styles.formContainer }>
+                        <LoginForm />
+                    </View>
+                </TouchableWithoutFeedback>
+
+            </KeyboardAvoidingView>
+        );
+
+    }
 }
 
 const styles = StyleSheet.create ({

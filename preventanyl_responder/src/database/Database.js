@@ -172,6 +172,12 @@ export default class Database {
                 lastName: $scope.lastName,
                 id:user.uid
             }
+
+            firebase.database().ref ('users/' + user.uid).set({
+                firstName: firstName,
+                lastName: lastName
+            })
+
             ref.child(user.uid).set(data).then(function(ref) {// use 'child' and 'set' combination to save data in your own generated key
                 console.log("Saved");
                 $location.path('/profile');
@@ -180,7 +186,7 @@ export default class Database {
             }); */
             // Navigate to home page, user is auto logged in
             successCallback(user);
-        }).catch(function(error) {
+        }).catch( (error) => {
             console.log(error.toString());
             const { errorCode, errorMessage } = error;
             console.log (errorCode);
@@ -189,7 +195,7 @@ export default class Database {
         });
     }
 
-    static async login(email, pass, successCallback, failureCallback) {
+    static async login (email, pass, successCallback, failureCallback) {
         if (Database.attempts == MAX_ATTEMPTS_LOGIN) {
             genericErrorAlert ("Too Many Attemps To Login");
             return;
@@ -197,7 +203,7 @@ export default class Database {
 
         ++Database.attempts;
 
-        await firebase.auth().signInWithEmailAndPassword(email, pass).then ( (user) => {
+        await firebase.auth().signInWithEmailAndPassword (email, pass).then ( (user) => {
                 Database.currentUser = user;
                 spinnerFunction ( () => {
                     Database.notifyUserVerification ();

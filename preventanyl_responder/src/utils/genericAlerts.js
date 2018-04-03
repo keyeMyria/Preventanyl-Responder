@@ -2,13 +2,43 @@ import { Alert } from 'react-native';
 
 import Database from '../database/Database';
 
-const OVERDOSE_DIRECTIONS = "Directions";
-const ERROR_TITLE = "Whoops!";
-const REQUIRED_FIELD_TITLE = "Required Field";
-const RESEND_EMAIL = "Resend email";
-const DEFAULT_TITLE = "TITLE";
-const DEFAULT_MESSAGE = "MESSAGE";
-const OKAY = "Okay";
+import LogoutComponent from '../components/LogoutComponent/LogoutComponent';
+
+const CONFIRMATION_TITLE    = "Confirmation required";
+const LOGOUT_PROMPT_MESSAGE = "Do you really want to logout?";
+const OVERDOSE_DIRECTIONS   = "Directions";
+const ERROR_TITLE           = "Whoops!";
+const REQUIRED_FIELD_TITLE  = "Required Field";
+const RESEND_EMAIL          = "Resend email";
+const DEFAULT_TITLE         = "TITLE";
+const DEFAULT_MESSAGE       = "MESSAGE";
+const UNDISSMISSABLE        = "Undissmissable";
+const OKAY                  = "Okay";
+const ACCEPT                = "Accept";
+const CANCEL                = "Cancel";
+
+export const GENERIC_ALERT_OBJECTS = Object.freeze (
+    {
+        OKAY : {
+            text    : OKAY,
+            onPress : () => {}
+        },
+        CANCEL : {
+            text    : CANCEL,
+            onPress : () => {}
+        },
+        UNDISSMISSABLE : {
+            cancelable : false,
+            onDismiss  : () => {}
+        },
+        RESEND_EMAIL : {
+            text : RESEND_EMAIL, 
+            onPress : () => {
+                Database.sendVerificationEmail ();
+            }
+        },
+    }
+)
 
 export const genericAlert = (title, message) => {
 
@@ -18,16 +48,30 @@ export const genericAlert = (title, message) => {
     Alert.alert (
         title, message, 
         [
-            {
-                text : OKAY,
-                onPress : () => {}
-            },
-            {
-                cancelable : false
-            }
-        ]
+            GENERIC_ALERT_OBJECTS.OKAY
+        ],  
+        
     )   
 
+}
+
+export const genericConfirmationAlert = (message, func) => {
+    if (message === "")
+        return;
+
+    Alert.alert (
+        CONFIRMATION_TITLE,
+        message,
+        [
+            GENERIC_ALERT_OBJECTS.CANCEL,
+            {
+                text : ACCEPT,
+                onPress : () => {
+                    func ();
+                }
+            }
+        ],
+    );
 }
 
 export const genericErrorAlert = (message) => {
@@ -46,22 +90,18 @@ export const genericRequiredFieldAlert = (field) => {
 }
 
 export const genericVerificationAlert = (title, message) => {
+    if (title === "" || message === "")
+        return;
+
     if (!Database.checkUserVerfied ()) {
         Alert.alert (
             title,
             message,
             [
-                {
-                    text : RESEND_EMAIL, onPress : () => {
-                        Database.sendVerificationEmail ();
-                    }
-                },
-                {
-                    text : OKAY, onPress : () => {
-                        console.log ('Okay pressed');
-                    }
-                }
-            ]
+                GENERIC_ALERT_OBJECTS.RESEND_EMAIL,
+                GENERIC_ALERT_OBJECTS.OKAY
+            ],
+            GENERIC_ALERT_OBJECTS.UNDISSMISSABLE
         );
     }
 }
@@ -71,20 +111,28 @@ export const genericDefaultAlert = () => {
 }
 
 export const overdoseNotificationAlert = (title, message, func) => {
+    if (title === "" || message === "")
+        return;
+    
     Alert.alert (
         title,
         message,
         [
             {
-                text : OVERDOSE_DIRECTIONS, onPress : () => {
+                text    : OVERDOSE_DIRECTIONS, 
+                onPress : () => {
                     func ();
                 }
             },
-            {
-                text : OKAY, onPress : () => {
-                    console.log ('Okay pressed');
-                }
-            }
+            GENERIC_ALERT_OBJECTS.OKAY
         ]
     );
+}
+
+export const logoutConfirmationAlert = () => {
+    genericConfirmationAlert (LOGOUT_PROMPT_MESSAGE, () => 
+        {
+            LogoutComponent.logoutUser ();
+        }
+    )
 }

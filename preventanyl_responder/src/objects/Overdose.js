@@ -2,13 +2,6 @@ import { replaceAll } from '../utils/strings';
 
 export default class Overdose {
     
-    date
-    id
-    key
-    latlng
-    region
-    timestamp
-    
     constructor (id, date, latlng, region, timestamp) {
         this.id        = id
         this.key       = id
