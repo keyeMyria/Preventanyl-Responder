@@ -132,6 +132,7 @@ export default class PushNotifications {
     }
 
     static _handleNotification = (notification) => {
+        // In Future, if handling different types, add if statements or make this a generic function that takes in a function
         console.log ("NOTIFICATION RECIEVED");
         console.log (notification)
         overdoseNotificationAlert (notification.data.title, notification.data.message, () => {
