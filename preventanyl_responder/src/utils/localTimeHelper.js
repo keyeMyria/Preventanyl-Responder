@@ -61,10 +61,8 @@ export const compareDiffHours = (firstTimestamp, secondTimestamp) => {
 export const compareDiffHoursNow = (timestamp) => {
 
     time = compareDiffDateTimeNow (timestamp);
-    console.log ('TIME IS : ', time);
+    
     hours = time.hours () + (time.minutes () / 60);
-
-    console.log ("HOURS : ", hours);
 
     return hours;
 }
