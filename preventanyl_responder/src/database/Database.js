@@ -58,15 +58,16 @@ export default class Database {
 
     static genericListenForItem (itemsRef, eventType, callback) {
         // retrieve the last record from `itemsRef`
-        return itemsRef.limitToLast(1).on(eventType, function(snapshot) {
+        return itemsRef.limitToLast(1).on(eventType, (snapshot) => {
 
-            let val = snapshot.val ();
+                let val = snapshot.val ();
 
-            // all records after the last continue to invoke this function
-            if (val)
-                callback (val);
-         
-         });
+                // all records after the last continue to invoke this function
+                if (val)
+                    callback (val);
+                    
+            }
+        );
     }
 
     static addItem (itemsRef, item) {
@@ -138,11 +139,15 @@ export default class Database {
     static async sendVerificationEmail () {
         if (!Database.currentUser.emailVerified) {
             console.log (Database.currentUser.emailVerified);
-            Database.currentUser.sendEmailVerification().then ( () => {
-                console.log ("email sent");
-            }).catch (function (error) {
-                console.log (error);
-            });
+            Database.currentUser.sendEmailVerification().then ( () => 
+                {
+                    console.log ("email sent");
+                }
+            ).catch ( (error) => 
+                {
+                    console.log (error);
+                }
+            );
         }
     }
     
@@ -157,42 +162,46 @@ export default class Database {
     }
 
     static async signup(email, pass, successCallback, failureCallback) {
-        await firebase.auth().createUserWithEmailAndPassword(email, pass).then(function(user) {
-            console.log("Account created");
-            Database.currentUser = firebase.auth().currentUser;
-            Database.sendVerificationEmail ();
-            spinnerFunction ( () => {
-                Database.notifySignupVerficiation ();
-            });
-            // use below if wish to store additional information about user
-            /* var data = {
-                email: $scope.email,
-                password: $scope.password,
-                firstName: $scope.firstName,
-                lastName: $scope.lastName,
-                id:user.uid
+        await firebase.auth().createUserWithEmailAndPassword (email, pass).then ( (user) => 
+            {
+                console.log("Account created");
+                Database.currentUser = firebase.auth().currentUser;
+                Database.sendVerificationEmail ();
+                spinnerFunction ( () => {
+                    Database.notifySignupVerficiation ();
+                });
+                // use below if wish to store additional information about user
+                /* var data = {
+                    email: $scope.email,
+                    password: $scope.password,
+                    firstName: $scope.firstName,
+                    lastName: $scope.lastName,
+                    id:user.uid
+                }
+
+                firebase.database().ref ('users/' + user.uid).set({
+                    firstName: firstName,
+                    lastName: lastName
+                })
+
+                ref.child(user.uid).set(data).then(function(ref) {// use 'child' and 'set' combination to save data in your own generated key
+                    console.log("Saved");
+                    $location.path('/profile');
+                }, function(error) {
+                    console.log(error); 
+                }); */
+                // Navigate to home page, user is auto logged in
+                successCallback(user);
             }
-
-            firebase.database().ref ('users/' + user.uid).set({
-                firstName: firstName,
-                lastName: lastName
-            })
-
-            ref.child(user.uid).set(data).then(function(ref) {// use 'child' and 'set' combination to save data in your own generated key
-                console.log("Saved");
-                $location.path('/profile');
-            }, function(error) {
-                console.log(error); 
-            }); */
-            // Navigate to home page, user is auto logged in
-            successCallback(user);
-        }).catch( (error) => {
-            console.log(error.toString());
-            const { errorCode, errorMessage } = error;
-            console.log (errorCode);
-            console.log (errorMessage);
-            failureCallback (error);
-        });
+        ).catch( (error) => 
+            {
+                console.log(error.toString());
+                const { errorCode, errorMessage } = error;
+                console.log (errorCode);
+                console.log (errorMessage);
+                failureCallback (error);
+            }
+        );
     }
 
     static async login (email, pass, successCallback, failureCallback) {
@@ -214,7 +223,7 @@ export default class Database {
                 } */
                 // Navigate to home page, after login
                 successCallback ();
-            }).catch(function (error) {
+            }).catch( (error) => {
                 console.log(error.toString());
                 const { errorCode, errorMessage } = error;
                 console.log (errorCode);

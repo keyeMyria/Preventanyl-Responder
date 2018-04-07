@@ -17,6 +17,7 @@ import { formatAddressObjectForMarker } from '../../utils/strings';
 import { genericErrorAlert } from '../../utils/genericAlerts';
 import { generateAppleMapsUrl } from '../../utils/linkingUrls';
 
+import Network from '../../utils/Network';
 import MapCallout from '../../subcomponents/MapCallout/MapCallout';
 
 import Overdose from '../../objects/Overdose';
@@ -144,23 +145,60 @@ export default class MapComponent extends Component {
             }
         );
 
+        Network.setupNetworkConnection ();
+
         this.watchLocation ();
 
         // Could clear by adding to pauseFunctions however it is being cleared in componentWillUnmount
-        App.addResumeFunction ( () => {
+        App.addResumeFunction ( () =>
+            {
 
-            setupLocation ( (result) => {
+                setupLocation ( (result) => 
+                    {
 
-                this.convertLocationMount (result, (location) => {
-                    console.log ('location ,', location);
-                })
-            
-                this.watchLocation ();
-            }, (error) => {
-                console.log (error);
-            })
+                        this.convertLocationMount (result, (location) => 
+                            {
+                                console.log ('location ,', location);
+                            }
+                        )
+                    
+                        this.watchLocation ();
 
-        });
+                    }, (error) => 
+                        {
+                            console.log (error);
+                        }
+                )
+
+            }
+
+        );
+
+        App.addResumeFunction ( () => 
+            {
+
+                Network.checkNetworkConnection ( (connectionInfo) => 
+                    {
+                        Network.changeNetworkStatus ();
+                    },
+                    (connectionInfo) => {
+                        Network.changeNetworkStatus ();
+                    },
+                    (error) => {
+                        Network.changeNetworkStatus ();
+                    }
+                )
+
+                Network.setupNetworkConnection ();
+                
+            }
+        )
+
+        App.addPauseFunction ( () => 
+            {
+                Network.genericRemoveAllListeners (Network.eventTypes.CONNECTION_CHANGE);
+            }
+        )
 
         Database.listenForItems (Database.firebaseRefs.staticKitsRef, async (kits) => {
 
@@ -183,95 +221,119 @@ export default class MapComponent extends Component {
 
         });
 
-        Database.genericListenForItem (Database.firebaseRefs.overdosesRef, Database.firebaseEventTypes.Added, (item) => {
-            if (this.overdosesLoaded) {
+        Database.genericListenForItem (Database.firebaseRefs.overdosesRef, Database.firebaseEventTypes.Added, (item) => 
+            {
+                if (this.overdosesLoaded) {
 
-                overdoses = this.state.overdoses;
+                    overdoses = this.state.overdoses;
 
-                overdose = Overdose.generateOverdoseFromSnapshot(item);
+                    overdose = Overdose.generateOverdoseFromSnapshot(item);
 
-                index = overdoses.find (obj => obj.id === overdose.id)
-
-                let dateRange = generateRangeCurrent (2);
-
-                let compareDate = moment (overdose.date)
-
-                if ((index !== undefined && index !== -1) || !compareDate.isBetween (dateRange.startDate, dateRange.endDate)) 
-                    return;
-
-                overdoses.push (overdose)
-
-                this.setState ({
-                    overdoses : overdoses
-                })
-
-            }
-        })
-
-        Database.genericListenForItem (Database.firebaseRefs.overdosesRef, Database.firebaseEventTypes.Removed, (item) => {
-            if (this.overdosesLoaded) {
-
-                overdoses = this.state.overdoses.filter( (overdose) => {
-                    return overdose.id !== item.id
-                });
-
-                this.setState ({
-                    overdoses : overdoses
-                })
-
-            }
-        })
-
-        Database.genericListenForItem (Database.firebaseRefs.overdosesRef, Database.firebaseEventTypes.Changed, (item) => {
-            if (this.overdosesLoaded) {
-                
-                overdoses = this.state.overdoses;
-
-                overdose = Overdose.generateOverdoseFromSnapshot(item);
-
-                index = overdoses.find (obj => obj.id === overdose.id)
-
-                if (index === undefined || index === -1)
-                    return;
-
-                overdoses[index] = overdose;
-
-                this.setState ({
-                    overdoses : overdoses
-                })
-
-            }
-        })
-
-        Database.listenForItems (Database.firebaseRefs.overdosesRef, async (items) => {
-
-            if (!this.overdosesLoaded) {
-                await this.simpleLoadingFunction ( async () => {
-
-                    let overdoses = [];
-
-                    overdoses = items.map ( (overdose) => { 
-                        return Overdose.generateOverdoseFromSnapshot (overdose);
-                    })
+                    index = overdoses.find (obj => obj.id === overdose.id)
 
                     let dateRange = generateRangeCurrent (2);
 
-                    overdoses = overdoses.filter ( (item) => {
-                        let compareDate = moment (item.date)
-                        return compareDate.isBetween (dateRange.startDate, dateRange.endDate);
-                    })
+                    let compareDate = moment (overdose.date)
 
-                    this.setState ({
-                        overdoses : overdoses
-                    })
+                    if ((index !== undefined && index !== -1) || !compareDate.isBetween (dateRange.startDate, dateRange.endDate)) 
+                        return;
 
-                    this.overdosesLoaded = true;
+                    overdoses.push (overdose)
 
-                })
-                
+                    this.setState (
+                        {
+                            overdoses : overdoses
+                        }
+                    )
+
+                }
+            }
+        )
+
+        Database.genericListenForItem (Database.firebaseRefs.overdosesRef, Database.firebaseEventTypes.Removed, (item) => 
+            {
+                if (this.overdosesLoaded) {
+
+                    overdoses = this.state.overdoses.filter( (overdose) => {
+                        return overdose.id !== item.id
+                        }
+                    );
+
+                    this.setState (
+                        {
+                            overdoses : overdoses
+                        }
+                    )
+
+                }
+            }
+        )
+
+        Database.genericListenForItem (Database.firebaseRefs.overdosesRef, Database.firebaseEventTypes.Changed, (item) => 
+            {
+                if (this.overdosesLoaded) {
+                    
+                    overdoses = this.state.overdoses;
+
+                    overdose = Overdose.generateOverdoseFromSnapshot(item);
+
+                    index = overdoses.find (obj => obj.id === overdose.id)
+
+                    if (index === undefined || index === -1)
+                        return;
+
+                    overdoses[index] = overdose;
+
+                    this.setState (
+                        {
+                            overdoses : overdoses
+                        }
+                    )
+
+                }
+            }
+        )
+
+        Database.listenForItems (Database.firebaseRefs.overdosesRef, async (items) => 
+            {
+
+                if (!this.overdosesLoaded) {
+                    await this.simpleLoadingFunction ( async () => 
+                        {
+
+                            let overdoses = [];
+
+                            overdoses = items.map ( (overdose) => 
+                                { 
+                                    return Overdose.generateOverdoseFromSnapshot (overdose);
+                                }
+                            )
+
+                            let dateRange = generateRangeCurrent (2);
+
+                            overdoses = overdoses.filter ( (item) => 
+                                {
+                                    let compareDate = moment (item.date)
+                                    return compareDate.isBetween (dateRange.startDate, dateRange.endDate);
+                                }
+                            )
+
+                            this.setState (
+                                {
+                                    overdoses : overdoses
+                                }
+                            )
+
+                            this.overdosesLoaded = true;
+
+                        }
+                    )
+                    
+                }
+
             }
 
-        });
+        );
 
         // Replace later with one function
         // let token = await registerForPushNotificationsAsync ();

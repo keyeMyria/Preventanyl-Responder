@@ -46,7 +46,8 @@ export const genericAlert = (title, message) => {
         return;
 
     Alert.alert (
-        title, message, 
+        title,
+        message, 
         [
             GENERIC_ALERT_OBJECTS.OKAY
         ],  
@@ -78,6 +79,10 @@ export const genericErrorAlert = (message) => {
     genericAlert(ERROR_TITLE, message);
 }
 
+export const genericErrorMessageAlert = (error) => {
+    genericAlert(ERROR_TITLE, error.message);
+}
+
 export const genericErrorDescriptionAlert = (error) => {
     if (error === undefined || error === undefined || typeof error === "string")
         return;
@@ -86,7 +91,7 @@ export const genericErrorDescriptionAlert = (error) => {
 }
 
 export const genericRequiredFieldAlert = (field) => {
-    genericAlert (REQUIRED_FIELD_TITLE, `Please enter a ${field}`);
+    genericAlert (REQUIRED_FIELD_TITLE, `Please enter a ${ field }`);
 }
 
 export const genericVerificationAlert = (title, message) => {
