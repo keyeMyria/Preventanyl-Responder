@@ -6,6 +6,10 @@ export const replaceAll = (target, search, replacement) => {
     return target.split(search).join(replacement);
 }
 
+export const removeAllWhitespace = (value) => {
+    return value.replace(/\s/g,'');
+}
+
 export const wordWrap = (str, maxWidth) => {
     newLineStr = "\n"; 
     done = false; 

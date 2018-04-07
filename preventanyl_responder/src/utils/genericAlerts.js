@@ -94,6 +94,10 @@ export const genericRequiredFieldAlert = (field) => {
     genericAlert (REQUIRED_FIELD_TITLE, `Please enter a ${ field }`);
 }
 
+export const genericNotFormattedFieldAlert = (field) => {
+    genericAlert (REQUIRED_FIELD_TITLE, `${ field } is not formatted properly`);
+}
+
 export const genericVerificationAlert = (title, message) => {
     if (title === "" || message === "")
         return;

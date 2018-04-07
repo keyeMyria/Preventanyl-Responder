@@ -4,9 +4,10 @@ import { AppRegistry, View, Text, TextInput, TouchableOpacity, StatusBar, StyleS
 import Spinner from 'react-native-loading-spinner-overlay';
 
 import Database from '../../database/Database';
-import { genericAlert, genericErrorAlert, genericErrorDescriptionAlert, genericRequiredFieldAlert } from '../../utils/genericAlerts';
+import { genericAlert, genericErrorAlert, genericErrorDescriptionAlert, genericRequiredFieldAlert, genericNotFormattedFieldAlert } from '../../utils/genericAlerts';
 import spinnerFunction from '../../utils/spinnerFunction';
 import { asyncTimeoutFunction } from '../../utils/timedFunctions';
+import Validation from '../../utils/Validation';
 
 export default class LoginForm extends Component {
 
@@ -37,16 +38,23 @@ export default class LoginForm extends Component {
             console.log (username);
             console.log (password);
 
-            if (username === "" && password === "") {
-                genericRequiredFieldAlert ("Please enter an username and password");
+            usernameEmpty = !Validation.validateString (username);
+            passwordEmpty = !Validation.validateString (password);
+
+            if (usernameEmpty && passwordEmpty) {
+                genericRequiredFieldAlert ("username and password");
                 return;
             } else {
                 field = "";
 
-                if (username === "")
+                if (usernameEmpty)
                     field = "username";
-                else if (password === "")
+                else if (passwordEmpty)
                     field = "password";
+                else if (!Validation.validateEmail (username)) {
+                    genericNotFormattedFieldAlert ("Username");
+                    return;
+                }
 
                 if (field !== "") {
                     genericRequiredFieldAlert (field);
