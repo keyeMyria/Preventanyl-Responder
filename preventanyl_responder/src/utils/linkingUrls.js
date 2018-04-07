@@ -21,21 +21,29 @@ export const generateAppleMapsUrl = (source, dest) => {
 
 export const genericOpenUrl = (url, displayError) => {
 
-    Linking.canOpenURL (url).then ( (supported) => {
-        if (!supported)
-            genericErrorAlert (displayError.functionalityRequiredErrorMessage)
-        else {
-            return Linking.openURL (url).then ( (data) => {
-                console.log (data);
-            }).catch ( (error) => {
-                console.log (error)
+    Linking.canOpenURL (url).then ( (supported) => 
+        {
+            if (!supported)
                 genericErrorAlert (displayError.functionalityRequiredErrorMessage)
-            })
+            else {
+                return Linking.openURL (url).then ( (data) => 
+                    {
+                        console.log (data);
+                    }
+                ).catch ( (error) => 
+                    {
+                        console.log (error)
+                        genericErrorAlert (displayError.functionalityRequiredErrorMessage)
+                    }
+                )
+            }
         }
-    }).catch ( (error) => {
-        console.log (error);
-        genericErrorAlert (displayError.errorMessage)
-    })
+    ).catch ( (error) => 
+        {
+            console.log (error);
+            genericErrorAlert (displayError.errorMessage)
+        }
+    )
 
 }
 
