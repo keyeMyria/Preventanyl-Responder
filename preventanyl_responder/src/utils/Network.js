@@ -129,15 +129,10 @@ export default class Network {
                 let previousConnectionObject = Network.connectionObject;
 
                 Network.setConnectionObject (false, Network.ConnectionTypes.NONE)
-
-                console.log ("TIMESTAMP", previousConnectionObject.timestamp)
-                console.log ("COMPARE", compareDiffHoursNow (previousConnectionObject.timestamp))
-                console.log ("VALUE", compareDiffHoursNow (previousConnectionObject.timestamp) > ALERT_NO_CONNECTION_COOLDOWN) 
-
-                // console.log ("COMPARE", compareDiffHoursNowSeconds (previousConnectionObject.timestamp))
                
                 if (compareDiffHoursNow (previousConnectionObject.timestamp) > ALERT_NO_CONNECTION_COOLDOWN)
                     genericErrorMessageAlert (new Error (Network.errorMessages.NO_INTERNET_CONNECTION));
+                    
             }, (error) => 
             {
                 Network.setConnectionObject (false, Network.ConnectionTypes.NONE)
