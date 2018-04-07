@@ -90,16 +90,18 @@ export default class MapComponent extends Component {
             async (position) => {
                 // console.log (position)
 
-                this.setState ({
-                    userLocation : {
-                        latlng : {
-                            latitude  : position.coords.latitude,
-                            longitude : position.coords.longitude,
+                this.setState (
+                    {
+                        userLocation : {
+                            latlng : {
+                                latitude  : position.coords.latitude,
+                                longitude : position.coords.longitude,
+                            },
+                            error     : null,
                         },
-                        error     : null,
-                    },
-                    detailedUserLocation : position
-                });
+                        detailedUserLocation : position
+                    }
+                );
 
                 if (!Database.currentUser)
                     Database.currentUser = firebase.auth().currentUser;
@@ -120,9 +122,11 @@ export default class MapComponent extends Component {
                     Database.addItemWithChildPath (Database.firebaseRefs.userLocationsRef, `/${ Database.currentUser.uid }/`, value)
 
             },
-            (error) => this.setState ( {
-                error : error.message
-            }),
+            (error) => this.setState ( 
+                {
+                    error : error.message
+                }
+            ),
             { 
                 enableHighAccuracy : true,
                 timeout : 20000,
@@ -176,25 +180,8 @@ export default class MapComponent extends Component {
 
         App.addResumeFunction ( () => 
             {
-
-                Network.checkNetworkConnection ( (connectionInfo) => 
-                    {
-                        Network.changeNetworkStatus ();
-                    },
-                    (connectionInfo) => {
-                        Network.changeNetworkStatus ();
-                    },
-                    (error) => {
-                        Network.changeNetworkStatus ();
-                    },
-                    (error) => 
-                    {
-                        Network.setConnectionObject (false, Network.errorMessages.NONE)
-                    }
-                )
-
+                Network.changeNetworkStatus    ();
                 Network.setupNetworkConnection ();
-                
             }
         )
 
@@ -204,26 +191,30 @@ export default class MapComponent extends Component {
             }
         )
 
-        Database.listenForItems (Database.firebaseRefs.staticKitsRef, async (kits) => {
+        Database.listenForItems (Database.firebaseRefs.staticKitsRef, async (kits) => 
+            {
 
-            await this.simpleLoadingFunction ( async () => {
-                let staticKits = [];
-
-                staticKits = kits.map ( (kit) => 
+                await this.simpleLoadingFunction ( async () => 
                     {
-                        return StaticKit.generateOverdoseFromSnapshot (kit);
+                        let staticKits = [];
+
+                        staticKits = kits.map ( (kit) => 
+                            {
+                                return StaticKit.generateOverdoseFromSnapshot (kit);
+                            }
+                        )
+                            
+                        this.setState (
+                            {
+                                staticKits : staticKits
+                            }
+                        );
+                        
                     }
                 )
-                    
-                this.setState (
-                    {
-                        staticKits : staticKits
-                    }
-                );
-                
-            })
 
-        });
+            }
+        );
 
         Database.genericListenForItem (Database.firebaseRefs.overdosesRef, Database.firebaseEventTypes.Added, (item) => 
             {
@@ -372,9 +363,11 @@ export default class MapComponent extends Component {
             --MapComponent.spinnerFunctionsLoading;
 
             if (MapComponent.spinnerFunctionsLoading === 0 && this.mounted)
-                this.setState ({
-                    isLoading : false
-                })
+                this.setState (
+                    {
+                        isLoading : false
+                    }
+                )
         }
     }
 
@@ -467,34 +460,44 @@ export default class MapComponent extends Component {
     setInitialRegionState() {
 
         this.setupRegionCurrentLocation ( (result) => {
-            this.setState ({
-                region : result
-            });
-        }, (error) => {
-            this.setState ({
-                region : {
-                    latitude: 49.246292,
-                    longitude: -123.116226,
-                    latitudeDelta: 0.2,
-                    longitudeDelta: 0.2,
+            this.setState (
+                {
+                    region : result
                 }
-            });
-        });
+            );
+        }, (error) => 
+            {
+                this.setState (
+                    {
+                        region : {
+                            latitude: 49.246292,
+                            longitude: -123.116226,
+                            latitudeDelta: 0.2,
+                            longitudeDelta: 0.2,
+                        }
+                    }
+                );
+            }
+        );
 
     }
 
     findMe () {
 
         this.createRegionCurrentLocation ((region) => {
-            this.setState ({
-                region : region
-            })
+            this.setState (
+                {
+                    region : region
+                }
+            )
 
             // Center on user position
             this.map.animateToRegion (this.state.region);
-        }, (error) => {
-            genericErrorAlert ("Failed to find user");
-        });
+        }, (error) => 
+            {
+                genericErrorAlert ("Failed to find user");
+            }
+        );
 
     }
 

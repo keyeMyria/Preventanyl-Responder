@@ -62,7 +62,7 @@ export const compareDiffHoursNow = (timestamp) => {
 
     time = compareDiffDateTimeNow (timestamp);
     
-    hours = time.hours () + (time.minutes () / 60);
+    hours = time.hours () + (time.minutes () / 60) + (time.seconds () / 60 / 60);
 
     return hours;
 }

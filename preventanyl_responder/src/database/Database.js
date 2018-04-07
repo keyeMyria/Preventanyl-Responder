@@ -236,6 +236,7 @@ export default class Database {
     static async logout(successCallback, failureCallback) {
         try {
             await firebase.auth().signOut();
+            Database.currentUser = undefined;
             successCallback ();
             // Navigate to login component
         } catch (error) {

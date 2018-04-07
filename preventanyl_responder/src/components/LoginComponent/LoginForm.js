@@ -56,16 +56,23 @@ export default class LoginForm extends Component {
 
             // using await keeps it in the try allowing the spinner to keep spinning
             
-            await asyncTimeoutFunction ( 10000, async () => {
-                await Database.login (username, password, () => {
-                        console.log ("success function");
-                    }, () => {
-                        spinnerFunction ( () => {
-                            genericErrorAlert ("Unable to login")
-                        });
-                        console.log ("failure function");
-                    });
-                }, (response) => {
+            await asyncTimeoutFunction ( 10000, async () => 
+                {
+                    await Database.login (username, password, () => 
+                        {
+                            console.log ("success function");
+                        }, () => 
+                            {
+                                spinnerFunction ( () => 
+                                    {
+                                        genericErrorAlert ("Unable to login")
+                                    }
+                                );
+                                console.log ("failure function");
+                            }
+                        );
+                }, (response) => 
+                {
                     console.log ("Success");
                 }, (error) => {
                     console.log ("Failure");
@@ -79,10 +86,13 @@ export default class LoginForm extends Component {
         } finally {
             console.log (this.mounted);
             console.log (this.state.isLoading);
+
             if (this.mounted)
-                this.setState ({
-                    isLoading : false
-                })
+                this.setState (
+                    {
+                        isLoading : false
+                    }
+                )
             console.log (this.state.isLoading);
         }
     }

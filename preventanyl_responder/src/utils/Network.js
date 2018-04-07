@@ -3,14 +3,19 @@ import React from 'react';
 import { NetInfo } from 'react-native';
 
 import { genericErrorMessageAlert } from './genericAlerts';
+import { compareDiffHoursNow, getMomentNow, getMomentNowSubtractHours } from './localTimeHelper';
 
 // Wrapper for NetInfo, for more details visit https://facebook.github.io/react-native/docs/netinfo.html
+
+// 5 seconds in hours
+const ALERT_NO_CONNECTION_COOLDOWN = 0.00138889;
 
 export default class Network {
 
     static connectionObject = {
         connected : false,
-        type      : "unkown"
+        type      : "unkown",
+        timestamp : getMomentNowSubtractHours (2)
     }
 
     static ConnectionTypes = Object.freeze (
@@ -101,15 +106,18 @@ export default class Network {
 
     static setConnectionObject (connected, type) {
 
+        timestamp = (type === Network.ConnectionTypes.NONE) ? getMomentNow () : Network.connectionObject.timestamp;
+
         Network.connectionObject = {
             connected : connected,
-            type      : type
+            type      : type,
+            timestamp : timestamp
         }
 
     }
  
     static changeNetworkStatus () {
-        
+
         Network.checkNetworkConnection ( (connectionInfo) => 
             {
                 Network.setConnectionObject (true, connectionInfo.type)
@@ -118,16 +126,27 @@ export default class Network {
                 Network.setConnectionObject (true, connectionInfo.type)
             }, (error) => 
             {
-                Network.setConnectionObject (false, Network.errorMessages.NONE)
-                genericErrorMessageAlert (new Error (Network.errorMessages.NO_INTERNET_CONNECTION));
+                let previousConnectionObject = Network.connectionObject;
+
+                Network.setConnectionObject (false, Network.ConnectionTypes.NONE)
+
+                console.log ("TIMESTAMP", previousConnectionObject.timestamp)
+                console.log ("COMPARE", compareDiffHoursNow (previousConnectionObject.timestamp))
+                console.log ("VALUE", compareDiffHoursNow (previousConnectionObject.timestamp) > ALERT_NO_CONNECTION_COOLDOWN) 
+
+                // console.log ("COMPARE", compareDiffHoursNowSeconds (previousConnectionObject.timestamp))
+               
+                if (compareDiffHoursNow (previousConnectionObject.timestamp) > ALERT_NO_CONNECTION_COOLDOWN)
+                    genericErrorMessageAlert (new Error (Network.errorMessages.NO_INTERNET_CONNECTION));
             }, (error) => 
             {
-                Network.setConnectionObject (false, Network.errorMessages.NONE)
+                Network.setConnectionObject (false, Network.ConnectionTypes.NONE)
             }
         );
 
     }
 
+    // Add listener, handler calls network connection again to get latest update.
     static setupNetworkConnection () {
         Network.genericRemoveAllListeners (Network.eventTypes.CONNECTION_CHANGE);
         Network.genericAddListenerNetInfo (Network.eventTypes.CONNECTION_CHANGE, Network.changeNetworkStatus);
