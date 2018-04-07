@@ -186,6 +186,10 @@ export default class MapComponent extends Component {
                     },
                     (error) => {
                         Network.changeNetworkStatus ();
+                    },
+                    (error) => 
+                    {
+                        Network.setConnectionObject (false, Network.errorMessages.NONE)
                     }
                 )
 
