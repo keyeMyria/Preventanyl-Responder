@@ -6,11 +6,23 @@ import Database from '../../database/Database';
 export default class ProfileComponent extends Component {
 
     logoutUser = () => {
-        Database.logout (() => {
-            console.log ("Logged out");
-        }, () => {
-            console.log ("Failure to log out");
-        });
+
+        Database.getItemWithChildPath (Database.firebaseRefs.userLocationsRef, `/${ Database.currentUser.uid }/`, (obj) => {
+            
+            if (Database.currentUser) {
+
+                obj.logged_in = false;
+                Database.addItemWithChildPath (Database.firebaseRefs.userLocationsRef, `/${ Database.currentUser.uid }/`, obj);
+                Database.logout (() => {
+                    console.log ("Logged out");
+                }, () => {
+                    console.log ("Failure to log out");
+                });
+
+            }
+
+        })
+
     }
 
     render () {

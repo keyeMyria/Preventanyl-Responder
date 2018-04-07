@@ -2,20 +2,14 @@ import { replaceAll } from '../utils/strings';
 
 export default class Overdose {
     
-    date
-    id
-    key
-    latlng
-    region
-    timestamp
-    
-    constructor (id, date, latlng, region, timestamp) {
+    constructor (id, date, latlng, region, timestamp, alerted) {
         this.id        = id
         this.key       = id
         this.date      = date
         this.latlng    = latlng
         this.region    = region
         this.timestamp = timestamp
+        this.alerted   = alerted;
     }
     
     static generateOverdoseFromSnapshot (overdose) {
@@ -27,12 +21,13 @@ export default class Overdose {
         }
         region    = overdose.region
         timestamp = overdose.timestamp
-        return new Overdose (id, date, latlng, region, timestamp)
+        alerted   = overdose.alerted
+        return new Overdose (id, date, latlng, region, timestamp, alerted)
     } 
     
     static generateOverdose (region, reportedTime, coordinates) {
         id = Overdose.generateId(reportedTime, coordinates.latitude, coordinates.longitude)
-        return new Overdose (id, Date.now(), coordinates, region, reportedTime)
+        return new Overdose (id, Date.now(), coordinates, region, reportedTime, false)
     }
 
     static generateOverdoseFromLocation (locationObject) {
@@ -52,7 +47,8 @@ export default class Overdose {
             latitude  : this.latlng.latitude,
             longitude : this.latlng.longitude,
             region    : this.region,
-            timestamp : this.timestamp
+            timestamp : this.timestamp,
+            alerted   : this.alerted
         }
     }
 

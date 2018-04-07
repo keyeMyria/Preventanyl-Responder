@@ -6,6 +6,10 @@ export const replaceAll = (target, search, replacement) => {
     return target.split(search).join(replacement);
 }
 
+export const removeAllWhitespace = (value) => {
+    return value.replace(/\s/g,'');
+}
+
 export const wordWrap = (str, maxWidth) => {
     newLineStr = "\n"; 
     done = false; 
@@ -39,3 +43,11 @@ export const whiteSpaceFind = (x) => {
     var white = new RegExp(/^\s$/);
     return white.test(x.charAt(0));
 };
+
+export const formatAddressObjectForMarker = (address) => {
+    return `${ address.city }\n${ address.streetAddress }\n${ address.postalCode }`;
+}
+
+export const formatAddressObject = (address) => {
+    return `${ address.country }\n${ address.province }\n${ address.city }\n${ address.postalCode }\n${ address.streetAddress}`;
+}

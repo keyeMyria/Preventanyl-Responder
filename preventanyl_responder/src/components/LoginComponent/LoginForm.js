@@ -4,9 +4,10 @@ import { AppRegistry, View, Text, TextInput, TouchableOpacity, StatusBar, StyleS
 import Spinner from 'react-native-loading-spinner-overlay';
 
 import Database from '../../database/Database';
-import { genericAlert, genericErrorAlert, genericErrorDescriptionAlert, genericRequiredFieldAlert } from '../../utils/genericAlerts';
+import { genericAlert, genericErrorAlert, genericErrorDescriptionAlert, genericRequiredFieldAlert, genericNotFormattedFieldAlert } from '../../utils/genericAlerts';
 import spinnerFunction from '../../utils/spinnerFunction';
 import { asyncTimeoutFunction } from '../../utils/timedFunctions';
+import Validation from '../../utils/Validation';
 
 export default class LoginForm extends Component {
 
@@ -37,16 +38,23 @@ export default class LoginForm extends Component {
             console.log (username);
             console.log (password);
 
-            if (username === "" && password === "") {
-                genericRequiredFieldAlert ("Please enter an username and password");
+            usernameEmpty = !Validation.validateString (username);
+            passwordEmpty = !Validation.validateString (password);
+
+            if (usernameEmpty && passwordEmpty) {
+                genericRequiredFieldAlert ("username and password");
                 return;
             } else {
                 field = "";
 
-                if (username === "")
+                if (usernameEmpty)
                     field = "username";
-                else if (password === "")
+                else if (passwordEmpty)
                     field = "password";
+                else if (!Validation.validateEmail (username)) {
+                    genericNotFormattedFieldAlert ("Username");
+                    return;
+                }
 
                 if (field !== "") {
                     genericRequiredFieldAlert (field);
@@ -56,16 +64,23 @@ export default class LoginForm extends Component {
 
             // using await keeps it in the try allowing the spinner to keep spinning
             
-            await asyncTimeoutFunction ( 10000, async () => {
-                await Database.login (username, password, () => {
-                    console.log ("success function");
-                }, () => {
-                    spinnerFunction ( () => {
-                        genericErrorAlert ("Unable to login")
-                    });
-                    console.log ("failure function");
-                });
-                }, (response) => {
+            await asyncTimeoutFunction ( 10000, async () => 
+                {
+                    await Database.login (username, password, () => 
+                        {
+                            console.log ("success function");
+                        }, () => 
+                            {
+                                spinnerFunction ( () => 
+                                    {
+                                        genericErrorAlert ("Unable to login")
+                                    }
+                                );
+                                console.log ("failure function");
+                            }
+                        );
+                }, (response) => 
+                {
                     console.log ("Success");
                 }, (error) => {
                     console.log ("Failure");
@@ -79,10 +94,13 @@ export default class LoginForm extends Component {
         } finally {
             console.log (this.mounted);
             console.log (this.state.isLoading);
+
             if (this.mounted)
-                this.setState ({
-                    isLoading : false
-                })
+                this.setState (
+                    {
+                        isLoading : false
+                    }
+                )
             console.log (this.state.isLoading);
         }
     }
@@ -97,8 +115,7 @@ export default class LoginForm extends Component {
                     textStyle = {
                         { color : '#FFF' }
                     }
-                    cancelable = { false }
-                />
+                    cancelable = { false } />
 
                 <TextInput
                     placeholder = 'username or email'
