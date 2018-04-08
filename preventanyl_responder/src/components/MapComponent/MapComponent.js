@@ -13,7 +13,6 @@ import PermissionsHandler from '../../utils/PermissionsHandler';
 
 import LocationHelper, { convertLocationToLatitudeLongitude, getCurrentLocation, getCurrentLocationAsync, setupLocation } from '../../utils/location';
 import { formatDateTime, generateRangeCurrent } from '../../utils/localTimeHelper';
-import { formatAddressObjectForMarker } from '../../utils/strings';
 import { genericErrorAlert, genericDisclaimerAlert } from '../../utils/genericAlerts';
 import { generateAppleMapsUrl } from '../../utils/linkingUrls';
 
@@ -153,9 +152,9 @@ export default class MapComponent extends Component {
             }, (error) => {
                 genericDisclaimerAlert ( () => 
                     {
-                        Storage.setDisclaimerData (Storage.values.DISCLAIMER.VALID.ACCEPTED, () => 
+                        Storage.setDisclaimerData (Storage.values.DISCLAIMER_RESPONDER.VALID.ACCEPTED, () => 
                             {
-                                console.log (Storage.values.DISCLAIMER.VALID.ACCEPTED);
+                                console.log (Storage.values.DISCLAIMER_RESPONDER.VALID.ACCEPTED);
                             }
                         ,(error) => 
                             {
@@ -224,7 +223,7 @@ export default class MapComponent extends Component {
 
                         staticKits = kits.map ( (kit) => 
                             {
-                                return StaticKit.generateOverdoseFromSnapshot (kit);
+                                return StaticKit.generateStaticKitFromSnapshot (kit);
                             }
                         )
                             
