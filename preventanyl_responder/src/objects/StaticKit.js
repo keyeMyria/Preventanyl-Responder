@@ -23,6 +23,6 @@ export default class StaticKit {
         };
         
         return new StaticKit (id, key, title, description, formattedDescription, latlng);
-    } 
+    }
 
 }
