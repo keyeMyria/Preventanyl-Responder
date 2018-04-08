@@ -4,12 +4,12 @@ import spinnerFunction from '../utils/spinnerFunction';
 import { genericVerificationAlert, genericErrorAlert } from '../utils/genericAlerts';
 
 const config = {
-    apiKey: "AIzaSyBa2ZiHRF2TrEaLBw3JrctIgT-UOU0tN84",
-    authDomain: "preventanyl.firebaseapp.com",
-    databaseURL: "https://preventanyl.firebaseio.com",
-    projectId: "preventanyl",
-    storageBucket: "preventanyl.appspot.com",
-    messagingSenderId: "111767423984"
+    apiKey: "AIzaSyAO6B13IApMmcF-8f8QorZRAgD9CEjzHu4",
+    authDomain: "preventanyl-1511504708922.firebaseapp.com",
+    databaseURL: "https://preventanyl-1511504708922.firebaseio.com",
+    projectId: "preventanyl-1511504708922",
+    storageBucket: "preventanyl-1511504708922.appspot.com",
+    messagingSenderId: "551559642544"
 };
 
 const firebaseApp        = firebase.initializeApp (config);
