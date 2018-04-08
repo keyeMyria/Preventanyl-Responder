@@ -13,7 +13,7 @@ export default class Storage {
 
     static keys = Object.freeze (
         {
-            "DISCLAIMER" : "DISCLAIMER"
+            "DISCLAIMER" : "DISCLAIMER_RESPONDER"
         }
     )
 
