@@ -4,6 +4,7 @@ import Database from '../database/Database';
 
 import LogoutComponent from '../components/LogoutComponent/LogoutComponent';
 
+const DISCLAIMER_TITLE      = "Disclaimer";
 const CONFIRMATION_TITLE    = "Confirmation required";
 const LOGOUT_PROMPT_MESSAGE = "Do you really want to logout?";
 const OVERDOSE_DIRECTIONS   = "Directions";
@@ -16,6 +17,8 @@ const UNDISSMISSABLE        = "Undissmissable";
 const OKAY                  = "Okay";
 const ACCEPT                = "Accept";
 const CANCEL                = "Cancel";
+
+const DISCLAIMER_TEXT       = "This app is not a replacement for calling emergency services.In case of an emergency, you should always contact your local emergency services.\nPreventanyl has the ability to contact nearby helpers and get directions to naloxone kits, and such ability is not guaranteed to function.";
 
 export const GENERIC_ALERT_OBJECTS = Object.freeze (
     {
@@ -117,6 +120,21 @@ export const genericVerificationAlert = (title, message) => {
 
 export const genericDefaultAlert = () => {
     genericAlert (DEFAULT_TITLE, DEFAULT_MESSAGE)
+}
+
+export const genericDisclaimerAlert = (func) => {
+    Alert.alert (
+        DISCLAIMER_TITLE,
+        DISCLAIMER_TEXT,
+        [
+            {
+                text : ACCEPT,
+                onPress : () => {
+                    func ();
+                }
+            }
+        ]
+    )
 }
 
 export const overdoseNotificationAlert = (title, message, func) => {

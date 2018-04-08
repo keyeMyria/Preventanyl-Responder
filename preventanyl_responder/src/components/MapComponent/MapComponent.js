@@ -14,10 +14,12 @@ import PermissionsHandler from '../../utils/PermissionsHandler';
 import LocationHelper, { convertLocationToLatitudeLongitude, getCurrentLocation, getCurrentLocationAsync, setupLocation } from '../../utils/location';
 import { formatDateTime, generateRangeCurrent } from '../../utils/localTimeHelper';
 import { formatAddressObjectForMarker } from '../../utils/strings';
-import { genericErrorAlert } from '../../utils/genericAlerts';
+import { genericErrorAlert, genericDisclaimerAlert } from '../../utils/genericAlerts';
 import { generateAppleMapsUrl } from '../../utils/linkingUrls';
 
 import Network from '../../utils/Network';
+import Colours from '../../utils/Colours';
+import Storage from '../../utils/Storage';
 import MapCallout from '../../subcomponents/MapCallout/MapCallout';
 
 import Overdose from '../../objects/Overdose';
@@ -142,6 +144,28 @@ export default class MapComponent extends Component {
 
     async componentDidMount () {
         this.mounted = true;
+
+        // If in future, add multiple disclaimer values, 
+        // adjust code to see all options in Storage values object.
+        Storage.getDisclaimerData ( (data) => 
+            {
+                console.log ("DATA", data);
+            }, (error) => {
+                genericDisclaimerAlert ( () => 
+                    {
+                        Storage.setDisclaimerData (Storage.values.DISCLAIMER.VALID.ACCEPTED, () => 
+                            {
+                                console.log (Storage.values.DISCLAIMER.VALID.ACCEPTED);
+                            }
+                        ,(error) => 
+                            {
+                                console.log ("ERROR", error);
+                            }
+                        )
+                    }
+                )
+            }
+        )
 
         this.setState (
             {
@@ -539,7 +563,7 @@ export default class MapComponent extends Component {
                             coordinate  = { this.state.userLocation.latlng } 
                             title       = "Current position"
                             description = "You are here"
-                            image       = { require('../../../assets/location-pin.imageset/location-pin-1.png') } />
+                            pinColor    = { Colours.HEX_COLOURS.BLACK } />
                      
                        /* <MapView.Circle
                             center = { this.state.userLocation.latlng }
@@ -556,8 +580,7 @@ export default class MapComponent extends Component {
                                 key         = { index }
                                 coordinate  = { marker.latlng }
                                 title       = { marker.title }
-                                description = { marker.formattedDescription }
-                                image       = { require('../../../assets/needle.imageset/needle-red.png') } >
+                                description = { marker.formattedDescription } >
 
                                 <MapCallout 
                                     title = { marker.title }
@@ -574,10 +597,8 @@ export default class MapComponent extends Component {
                                 key         = { marker.key }
                                 coordinate  = { marker.latlng }
                                 title       = ''
-                                description = ''
-                                image       = {
-                                    require('../../../assets/pill.imageset/pill-2.png')
-                                }>
+                                description = '' 
+                                pinColor    = { Colours.HEX_COLOURS.BLUE } >
 
                                 <MapCallout 
                                     title = { overdoseTitle }

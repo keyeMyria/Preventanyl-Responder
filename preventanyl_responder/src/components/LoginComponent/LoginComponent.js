@@ -16,9 +16,9 @@ export default class LoginComponent extends Component {
                 <TouchableWithoutFeedback onPress = { () => { DismissKeyboard() } }>
                     <View style = { styles.logoContainer }>
                         <Image 
-                          style = { styles.logo }
-                          source = { require ('../../../assets/images/logo/app-store.png') } />
-                          <Text style = { styles.title }>An app made for preventing overdoses using React-Native</Text>
+                            style = { styles.logo }
+                            source = { require ('../../../assets/images/logo/app-store.png') } />
+                            <Text style = { styles.title }>An app designed to help reduce the number of overdose fatalities</Text>
                     </View>
                 </TouchableWithoutFeedback>
 
