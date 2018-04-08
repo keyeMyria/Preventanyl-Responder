@@ -599,9 +599,11 @@ export default class MapComponent extends Component {
                                 description = '' 
                                 pinColor    = { Colours.HEX_COLOURS.BLUE } >
 
+                                { /* Added space at end of description so that the AM/PM is not a new line */ }
+
                                 <MapCallout 
                                     title = { overdoseTitle }
-                                    description = { `Reported Overdose at ${ formatDateTime (marker.timestamp) }` }
+                                    description = { `Reported Overdose at:\n${ formatDateTime (marker.timestamp) } ` }
                                     url = { this.state.userLocation ? generateAppleMapsUrl ( this.state.userLocation.latlng, marker.latlng ) : '' }
                                 />
                                 
