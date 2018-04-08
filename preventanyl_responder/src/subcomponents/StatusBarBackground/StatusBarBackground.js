@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { Component } from 'react';
 import { Platform, View, StatusBar, StyleSheet, Text } from 'react-native';
 
-export default class StatusBarBackground extends React.Component {
+export default class StatusBarBackground extends Component {
   
   render() {
     return (
