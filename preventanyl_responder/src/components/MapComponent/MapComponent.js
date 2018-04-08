@@ -18,6 +18,7 @@ import { genericErrorAlert } from '../../utils/genericAlerts';
 import { generateAppleMapsUrl } from '../../utils/linkingUrls';
 
 import Network from '../../utils/Network';
+import Colours from '../../utils/Colours';
 import MapCallout from '../../subcomponents/MapCallout/MapCallout';
 
 import Overdose from '../../objects/Overdose';
@@ -539,7 +540,7 @@ export default class MapComponent extends Component {
                             coordinate  = { this.state.userLocation.latlng } 
                             title       = "Current position"
                             description = "You are here"
-                            image       = { require('../../../assets/location-pin.imageset/location-pin-1.png') } />
+                            pinColor    = { Colours.HEX_COLOURS.BLACK } />
                      
                        /* <MapView.Circle
                             center = { this.state.userLocation.latlng }
@@ -556,8 +557,7 @@ export default class MapComponent extends Component {
                                 key         = { index }
                                 coordinate  = { marker.latlng }
                                 title       = { marker.title }
-                                description = { marker.formattedDescription }
-                                image       = { require('../../../assets/needle.imageset/needle-red.png') } >
+                                description = { marker.formattedDescription } >
 
                                 <MapCallout 
                                     title = { marker.title }
@@ -574,10 +574,8 @@ export default class MapComponent extends Component {
                                 key         = { marker.key }
                                 coordinate  = { marker.latlng }
                                 title       = ''
-                                description = ''
-                                image       = {
-                                    require('../../../assets/pill.imageset/pill-2.png')
-                                }>
+                                description = '' 
+                                pinColor    = { Colours.HEX_COLOURS.BLUE } >
 
                                 <MapCallout 
                                     title = { overdoseTitle }
