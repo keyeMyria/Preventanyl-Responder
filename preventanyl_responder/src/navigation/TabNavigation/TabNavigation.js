@@ -14,7 +14,7 @@ const TabNavigation = TabNavigator (
         Map : {
             screen : MapComponent,
             navigationOptions : {
-                tabBarLabel : 'Map',
+                tabBarLabel : 'Maps',
                 tabBarIcon  : ( { tintColor } ) => (
                     <Image 
                       source = { require ('../../../assets/map.imageset/map.png') }
