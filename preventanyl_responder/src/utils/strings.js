@@ -1,3 +1,5 @@
+const POSTAL_CODE_SPLIT_NUMBER = 3;
+
 export const replaceAllRegex = (target, search, replacement) => {
     return target.replace(new RegExp(search, 'g'), replacement);
 };
@@ -15,7 +17,7 @@ export const wordWrap = (str, maxWidth) => {
     done = false; 
     res = '';
     
-    while (!done) {              
+    while (!done) {
         found = false;
         // Inserts new line at first whitespace of the line
         for (i = maxWidth - 1; i >= 0; --i)
@@ -28,15 +30,21 @@ export const wordWrap = (str, maxWidth) => {
 
         // Inserts new line at maxWidth position, the word is too long to wrap
         if (!found) {
-            res += [str.slice(0, maxWidth), newLineStr].join('');
-            str = str.slice(maxWidth);
+            res += [str.slice (0, maxWidth), newLineStr].join ('');
+            str = str.slice (maxWidth);
         }
 
         if (str.length < maxWidth)
             done = true;
     }
 
-    return res + str;
+    parsed_str = res + str;
+
+    return removeLastCharacterCheck (parsed_str, newLineStr);
+}
+
+export const removeLastCharacterCheck = (str, compare) => {
+    return (str.slice(-1) === compare) ? str.substring (0, str.length - 1) : str;
 }
 
 export const whiteSpaceFind = (x) => {
@@ -44,8 +52,18 @@ export const whiteSpaceFind = (x) => {
     return white.test(x.charAt(0));
 };
 
+export const splitString = (str, splitNumber, splitChar) => {
+
+    let regularExpression = new RegExp (`.{1,${ splitNumber }}`, 'g');
+
+    splitStr = str.match (regularExpression);
+
+    return splitStr.join (splitChar);
+
+}
+
 export const formatAddressObjectForMarker = (address) => {
-    return `${ address.city }\n${ address.streetAddress }\n${ address.postalCode }`;
+    return `${ address.city }\n${ address.streetAddress }\n${ splitString (address.postalCode, POSTAL_CODE_SPLIT_NUMBER, ' ') } `;
 }
 
 export const formatAddressObject = (address) => {

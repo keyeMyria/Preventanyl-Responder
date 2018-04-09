@@ -13,7 +13,6 @@ import PermissionsHandler from '../../utils/PermissionsHandler';
 
 import LocationHelper, { convertLocationToLatitudeLongitude, getCurrentLocation, getCurrentLocationAsync, setupLocation } from '../../utils/location';
 import { formatDateTime, generateRangeCurrent } from '../../utils/localTimeHelper';
-import { formatAddressObjectForMarker } from '../../utils/strings';
 import { genericErrorAlert, genericDisclaimerAlert } from '../../utils/genericAlerts';
 import { generateAppleMapsUrl } from '../../utils/linkingUrls';
 
@@ -92,18 +91,19 @@ export default class MapComponent extends Component {
             async (position) => {
                 // console.log (position)
 
-                this.setState (
-                    {
-                        userLocation : {
-                            latlng : {
-                                latitude  : position.coords.latitude,
-                                longitude : position.coords.longitude,
-                            },
-                            error     : null,
+                let stateObject = {
+                    userLocation : {
+                        latlng : {
+                            latitude  : position.coords.latitude,
+                            longitude : position.coords.longitude,
                         },
-                        detailedUserLocation : position
-                    }
-                );
+                        error     : null,
+                    },
+                    detailedUserLocation : position
+                }
+
+                if (this.mounted)
+                    this.setState (stateObject);
 
                 if (!Database.currentUser)
                     Database.currentUser = firebase.auth().currentUser;
@@ -115,8 +115,8 @@ export default class MapComponent extends Component {
                     "id"  : PushNotifications.expoToken,
                     "logged_in" : true,
                     "loc" : {
-                        "lat" : this.state.userLocation.latlng.latitude,
-                        "lng" : this.state.userLocation.latlng.longitude
+                        "lat" : stateObject.userLocation.latlng.latitude,
+                        "lng" : stateObject.userLocation.latlng.longitude
                     }
                 }
 
@@ -124,7 +124,7 @@ export default class MapComponent extends Component {
                     Database.addItemWithChildPath (Database.firebaseRefs.userLocationsRef, `/${ Database.currentUser.uid }/`, value)
 
             },
-            (error) => this.setState ( 
+            (error) => this.setState (
                 {
                     error : error.message
                 }
@@ -153,9 +153,9 @@ export default class MapComponent extends Component {
             }, (error) => {
                 genericDisclaimerAlert ( () => 
                     {
-                        Storage.setDisclaimerData (Storage.values.DISCLAIMER.VALID.ACCEPTED, () => 
+                        Storage.setDisclaimerData (Storage.values.DISCLAIMER_RESPONDER.VALID.ACCEPTED, () => 
                             {
-                                console.log (Storage.values.DISCLAIMER.VALID.ACCEPTED);
+                                console.log (Storage.values.DISCLAIMER_RESPONDER.VALID.ACCEPTED);
                             }
                         ,(error) => 
                             {
@@ -224,7 +224,7 @@ export default class MapComponent extends Component {
 
                         staticKits = kits.map ( (kit) => 
                             {
-                                return StaticKit.generateOverdoseFromSnapshot (kit);
+                                return StaticKit.generateStaticKitFromSnapshot (kit);
                             }
                         )
                             
@@ -600,9 +600,11 @@ export default class MapComponent extends Component {
                                 description = '' 
                                 pinColor    = { Colours.HEX_COLOURS.BLUE } >
 
+                                { /* Added space at end of description so that the AM/PM is not a new line */ }
+
                                 <MapCallout 
                                     title = { overdoseTitle }
-                                    description = { `Reported Overdose at ${ formatDateTime (marker.timestamp) }` }
+                                    description = { `Reported Overdose at:\n${ formatDateTime (marker.timestamp) } ` }
                                     url = { this.state.userLocation ? generateAppleMapsUrl ( this.state.userLocation.latlng, marker.latlng ) : '' }
                                 />
                                 

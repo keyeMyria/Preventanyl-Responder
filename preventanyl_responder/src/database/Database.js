@@ -22,7 +22,7 @@ export default class Database {
             "staticKitsRef"    : firebase.database ().ref ('statickits'),
             "overdosesRef"     : firebase.database ().ref ('overdoses'),
             "usersRef"         : firebase.database ().ref ().child ("user"),
-            "userLocationsRef" : firebase.database().ref  ().child ("userLocations")
+            "userLocationsRef" : firebase.database ().ref  ().child ("userLocations")
         }
     )
 

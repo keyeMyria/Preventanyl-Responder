@@ -11,7 +11,7 @@ export default class StaticKit {
         this.latlng               = latlng;
     }
     
-    static generateOverdoseFromSnapshot (staticKit) {
+    static generateStaticKitFromSnapshot (staticKit) {
         id                   = staticKit.id;
         key                  = staticKit.id;
         title                = staticKit.displayName;
@@ -23,6 +23,6 @@ export default class StaticKit {
         };
         
         return new StaticKit (id, key, title, description, formattedDescription, latlng);
-    } 
+    }
 
 }
