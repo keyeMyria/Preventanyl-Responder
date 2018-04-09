@@ -2,7 +2,7 @@
   "expo": {
     "name": "Preventanyl Resonder",
     "description": "This project is really great.",
-    "slug": "preventanyl",
+    "slug": "preventanylresponder",
     "privacy": "public",
     "sdkVersion": "24.0.0",
     "platforms": ["ios", "android"],

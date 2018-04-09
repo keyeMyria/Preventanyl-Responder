@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform, View, StatusBar, StyleSheet, Text } from 'react-native';
+import { Platform, View, StatusBar, StyleSheet } from 'react-native';
 
 import Colours from '../../utils/Colours';
 
