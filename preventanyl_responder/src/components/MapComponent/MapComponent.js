@@ -91,18 +91,19 @@ export default class MapComponent extends Component {
             async (position) => {
                 // console.log (position)
 
-                this.setState (
-                    {
-                        userLocation : {
-                            latlng : {
-                                latitude  : position.coords.latitude,
-                                longitude : position.coords.longitude,
-                            },
-                            error     : null,
+                let stateObject = {
+                    userLocation : {
+                        latlng : {
+                            latitude  : position.coords.latitude,
+                            longitude : position.coords.longitude,
                         },
-                        detailedUserLocation : position
-                    }
-                );
+                        error     : null,
+                    },
+                    detailedUserLocation : position
+                }
+
+                if (this.mounted)
+                    this.setState (stateObject);
 
                 if (!Database.currentUser)
                     Database.currentUser = firebase.auth().currentUser;
@@ -114,8 +115,8 @@ export default class MapComponent extends Component {
                     "id"  : PushNotifications.expoToken,
                     "logged_in" : true,
                     "loc" : {
-                        "lat" : this.state.userLocation.latlng.latitude,
-                        "lng" : this.state.userLocation.latlng.longitude
+                        "lat" : stateObject.userLocation.latlng.latitude,
+                        "lng" : stateObject.userLocation.latlng.longitude
                     }
                 }
 
@@ -123,7 +124,7 @@ export default class MapComponent extends Component {
                     Database.addItemWithChildPath (Database.firebaseRefs.userLocationsRef, `/${ Database.currentUser.uid }/`, value)
 
             },
-            (error) => this.setState ( 
+            (error) => this.setState (
                 {
                     error : error.message
                 }

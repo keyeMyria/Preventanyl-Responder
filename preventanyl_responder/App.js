@@ -10,23 +10,27 @@ import StackNavigation from './src/navigation/StackNavigation/StackNavigation';
 
 import StatusBarBackground from './src/subcomponents/StatusBarBackground/StatusBarBackground';
 
+import Colours from './src/utils/Colours';
+
 export default class App extends React.Component {
 
     state = {
-        loggedIn : false,
-        isReady  : false,
-        appState : AppState.currentState
+        loggedIn        : false,
+        isReady         : false,
+        appState        : AppState.currentState,
+        statusBarColour : Colours.HEX_COLOURS.SOFT_BLUE
     };
 
     static pauseFuncs  = [];
     static resumeFuncs = [];
 
     async componentWillMount () {
-        firebase.auth().onAuthStateChanged( user =>
+        firebase.auth ().onAuthStateChanged ( user =>
             this.setState (
-              {
-                loggedIn : user
-              }
+                {
+                    loggedIn        : user,
+                    statusBarColour : user ? Colours.HEX_COLOURS.DARK_WHITE : Colours.HEX_COLOURS.SOFT_BLUE
+                }
             )
         );
     }
@@ -42,14 +46,18 @@ export default class App extends React.Component {
     _handleAppStateChange = (nextAppState) => {
         if (this.state.appState.match(/inactive|background/) && nextAppState === 'active') {
             console.log('App has come to the foreground!')
-            App.resumeFuncs.map ( func => {
-                func ();
-            })
+            App.resumeFuncs.map ( func => 
+                {
+                    func ();
+                }
+            )
         } else {
             console.log('App has gone to the background!')
-            App.pauseFuncs.map ( func => {
-                func ();
-            })
+            App.pauseFuncs.map ( func => 
+                {
+                    func ();
+                }
+            )
         }
 
         this.setState (
@@ -81,7 +89,7 @@ export default class App extends React.Component {
                 <View style = { styles.container }>
                     <StatusBarBackground style = { 
                         {
-                            backgroundColor : '#3498db'
+                            backgroundColor : this.state.statusBarColour
                         }
                     } />
                     { this.state.loggedIn ? <TabNavigation /> : <StackNavigation /> }

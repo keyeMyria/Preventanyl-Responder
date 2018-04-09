@@ -40,7 +40,11 @@ export const wordWrap = (str, maxWidth) => {
 
     parsed_str = res + str;
 
-    return (parsed_str.slice(-1) === newLineStr) ? parsed_str.substring (0, parsed_str.length - 1) : parsed_str;
+    return removeLastCharacterCheck (parsed_str, newLineStr);
+}
+
+export const removeLastCharacterCheck = (str, compare) => {
+    return (str.slice(-1) === compare) ? str.substring (0, str.length - 1) : str;
 }
 
 export const whiteSpaceFind = (x) => {

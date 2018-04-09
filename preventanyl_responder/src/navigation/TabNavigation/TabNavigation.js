@@ -4,6 +4,7 @@ import { Text, View, Image, StyleSheet } from 'react-native';
 
 import MapComponent from '../../components/MapComponent/MapComponent';
 import ProfileComponent from '../../components/ProfileComponent/ProfileComponent';
+import RespondingComponent from '../../components/RespondingComponent/RespondingComponent';
 import LogoutComponent from '../../components/LogoutComponent/LogoutComponent';
 
 import { logoutConfirmationAlert } from '../../utils/genericAlerts';
@@ -13,7 +14,7 @@ const TabNavigation = TabNavigator (
         Map : {
             screen : MapComponent,
             navigationOptions : {
-                tabBarLabel : 'Home',
+                tabBarLabel : 'Maps',
                 tabBarIcon  : ( { tintColor } ) => (
                     <Image 
                       source = { require ('../../../assets/map.imageset/map.png') }
@@ -46,6 +47,22 @@ const TabNavigation = TabNavigator (
                 )
             },
         }, */
+        Responding : {
+            screen : RespondingComponent,
+            navigationOptions : {
+                tabBarLabel : 'Responding',
+                tabBarIcon  : (
+                    { 
+                        tintColor 
+                    }
+                ) => (
+                <Image 
+                    source = { require ('../../../assets/respond.imageset/respond.png') }
+                    style  = { [styles.icon, { tintColor : tintColor }]}
+                />
+              )
+            },
+        },
         Logout : {
             screen : LogoutComponent, // Empty screen, not used in this specific case
             navigationOptions : ( { navigation } ) => (
@@ -72,10 +89,11 @@ const TabNavigation = TabNavigator (
             )
         },
     }, {
-        tabBarPosition: 'bottom',
-        animationEnabled: true,
+        tabBarPosition   : 'bottom',
+        animationEnabled : true,
         tabBarOptions: {
-            activeTintColor: '#e91e63',
+            activeTintColor : '#e91e63',
+            showIcon        : true,
         },
     }
 );
